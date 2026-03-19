@@ -22,11 +22,7 @@
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Google Maps / Places API
-     Replace YOUR_GOOGLE_MAPS_API_KEY with your key from:
-     https://console.cloud.google.com → APIs & Services → Credentials
-     Make sure "Places API" and "Maps JavaScript API" are enabled -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initGooglePlaces" async defer></script>
+<!-- Google Maps loaded dynamically by app.js once key is set -->
 </head>
 <body>
 
@@ -194,17 +190,60 @@
 <div class="moverlay" id="m-addplace">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mhdr"><div><div class="mttl">Add a Place</div><div class="msub">Search or pin on the map</div></div><button class="mclose" onclick="closeM('addplace')">&#10005;</button></div>
-    <div class="mbody">
-      <div class="fg"><label class="flbl">Place Name</label><input class="finput" id="ap-name" placeholder="e.g. Fushimi Inari Taisha"></div>
-      <div class="fg"><label class="flbl">Address / Location</label><input class="finput" id="ap-addr" placeholder="City, Country"></div>
-      <div class="fg"><label class="flbl">Category</label>
-        <select class="fsel" id="ap-cat"><option>Food and Drink</option><option>Culture and Sights</option><option>Nature and Parks</option><option>Shopping</option><option>Accommodation</option><option>Entertainment</option></select>
-      </div>
-      <div class="fg"><label class="flbl">Your Note</label><textarea class="ftarea" id="ap-note" placeholder="Tips, must-tries, memories..."></textarea></div>
-      <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer"><input type="checkbox" id="ap-vis" style="accent-color:var(--sage);width:15px;height:15px"> Mark as visited</label>
+    <div class="mhdr">
+      <div><div class="mttl">Add a Place</div><div class="msub">Search Google Maps for real locations</div></div>
+      <button class="mclose" onclick="closeM('addplace');clearPlaceSearch()">&#10005;</button>
     </div>
-    <div class="mfoot"><button class="btn btn-s" onclick="closeM('addplace')">Cancel</button><button class="btn btn-p" onclick="addPlace()">Add Place</button></div>
+    <div class="mbody">
+      <!-- Search box -->
+      <div class="fg" style="position:relative">
+        <label class="flbl">Search Google Maps</label>
+        <div class="places-search-wrap">
+          <span class="places-search-icon">&#128269;</span>
+          <input class="finput places-search-input" id="ap-search"
+            placeholder="e.g. Eiffel Tower, Paris..."
+            autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="places-clear-btn" id="ap-clear" onclick="clearPlaceSearch()" style="display:none">&#10005;</button>
+        </div>
+        <div class="places-dropdown" id="places-dropdown"></div>
+      </div>
+      <!-- Selected place preview -->
+      <div class="place-preview" id="place-preview" style="display:none">
+        <div class="place-preview-img" id="pp-img">
+          <div class="place-preview-img-fallback" id="pp-img-fallback">&#128205;</div>
+        </div>
+        <div class="place-preview-body">
+          <div class="place-preview-name" id="pp-name"></div>
+          <div class="place-preview-addr" id="pp-addr"></div>
+          <div class="place-preview-meta">
+            <span class="place-preview-type" id="pp-type"></span>
+            <span class="place-preview-rating" id="pp-rating"></span>
+          </div>
+          <a class="place-preview-gmaps" id="pp-gmaps" target="_blank" rel="noopener">&#128506; View on Google Maps</a>
+        </div>
+      </div>
+      <!-- Extra fields shown after place selected -->
+      <div id="ap-extra" style="display:none">
+        <div class="fg">
+          <label class="flbl">Category</label>
+          <select class="fsel" id="ap-cat">
+            <option>Food and Drink</option><option>Culture and Sights</option>
+            <option>Nature and Parks</option><option>Shopping</option>
+            <option>Accommodation</option><option>Entertainment</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">Your Note</label>
+          <textarea class="ftarea" id="ap-note" placeholder="Tips, must-tries, memories..."></textarea>
+        </div>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:4px">
+          <input type="checkbox" id="ap-vis" style="accent-color:var(--sage);width:15px;height:15px"> Mark as visited
+        </label>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-s" onclick="closeM('addplace');clearPlaceSearch()">Cancel</button>
+      <button class="btn btn-p" id="ap-submit-btn" onclick="addPlace()" disabled style="opacity:.45;cursor:not-allowed">Add Place</button>
+    </div>
   </div>
 </div>
 
