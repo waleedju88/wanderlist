@@ -98,14 +98,23 @@ var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 ──────────────────────────────────────────────────────────── */
 var GOOGLE_MAPS_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
 
-/* ─── detect unconfigured ─── */
-var isConfigured = SUPABASE_URL !== '' && SUPABASE_URL.indexOf('supabase.co') !== -1;
-if(!isConfigured){
-  document.getElementById('setup-banner').style.display = 'flex';
-}
+/* ─── detect configured ─── */
+var isConfigured = (
+  SUPABASE_URL !== '' &&
+  SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+  SUPABASE_URL.indexOf('supabase.co') !== -1
+);
 
-/* ─── init supabase ─── */
-var sb = isConfigured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+/* ─── init supabase safely ─── */
+var sb = null;
+try {
+  if(isConfigured && typeof supabase !== 'undefined'){
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  }
+} catch(e){
+  console.warn('Supabase init failed:', e);
+  isConfigured = false;
+}
 
 /* ─── app state ─── */
 var currentUser   = null;
@@ -215,7 +224,8 @@ async function onSignedIn(user){
 ═══════════════════════════════════════ */
 function showPage(name){
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
-  document.getElementById('page-'+name).classList.add('active');
+  var target = document.getElementById('page-'+name);
+  if(target) target.classList.add('active');
 }
 
 /* ═══════════════════════════════════════
@@ -533,6 +543,21 @@ var autocompleteService= null;
 var searchTimer        = null;
 var focusedSuggestion  = -1;
 
+// Dynamically load Google Maps only when a real key is provided
+(function loadGoogleMapsIfConfigured(){
+  if(!GOOGLE_MAPS_KEY || GOOGLE_MAPS_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') {
+    console.info('Google Maps key not set - Places search will use fallback mode');
+    return;
+  }
+  var script = document.createElement('script');
+  script.src = 'https://maps.googleapis.com/maps/api/js?key=' +
+    GOOGLE_MAPS_KEY + '&libraries=places&callback=initGooglePlaces';
+  script.async = true;
+  script.defer = true;
+  script.onerror = function(){ console.warn('Google Maps failed to load'); };
+  document.head.appendChild(script);
+})();
+
 // Called by Google Maps script callback
 function initGooglePlaces(){
   // We use AutocompleteService (no map needed) + PlacesService (needs a dummy div)
@@ -823,7 +848,22 @@ document.addEventListener('click', function(e){
    ADD PLACE (uses selectedPlace data)
 ═══════════════════════════════════════ */
 async function addPlace(){
-  if(!selectedPlace){ toast('Please search and select a place first'); return; }
+  // If no place selected from Google Maps, fall back to manual input
+  if(!selectedPlace){
+    var manualName = document.getElementById('ap-search') ?
+      document.getElementById('ap-search').value.trim() : '';
+    if(!manualName){ toast('Please enter a place name'); return; }
+    selectedPlace = {
+      name: manualName,
+      formatted_address: '',
+      types: [],
+      url: 'https://www.google.com/maps/search/' + encodeURIComponent(manualName),
+      geometry: null, photos: [], rating: null, place_id: null
+    };
+    document.getElementById('ap-extra').style.display = 'block';
+    var btn = document.getElementById('ap-submit-btn');
+    if(btn){ btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer'; }
+  }
 
   var cat  = document.getElementById('ap-cat').value;
   var note = document.getElementById('ap-note').value.trim();
@@ -1036,8 +1076,22 @@ window.addEventListener('resize', function(){ if(!isMob()) closeMobile(); });
 /* ═══════════════════════════════════════
    HELPERS
 ═══════════════════════════════════════ */
-function openM(id){ document.getElementById('m-'+id).classList.add('on'); }
-function closeM(id){ document.getElementById('m-'+id).classList.remove('on'); }
+function openM(id){
+  var el = document.getElementById('m-'+id);
+  if(!el) return;
+  el.classList.add('on');
+  if(id === 'addplace'){
+    var inp = document.getElementById('ap-search');
+    if(inp && !inp._wired){
+      inp.addEventListener('input', onPlacesSearchInput);
+      inp._wired = true;
+    }
+  }
+}
+function closeM(id){
+  var el = document.getElementById('m-'+id);
+  if(el) el.classList.remove('on');
+}
 document.querySelectorAll('.moverlay').forEach(function(el){
   el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('on'); });
 });
@@ -1076,22 +1130,31 @@ function confirmOk(){ document.getElementById('confirmOverlay').classList.remove
 /* ═══════════════════════════════════════
    BOOT
 ═══════════════════════════════════════ */
-(async function boot(){
-  if(!isConfigured){
-    // Show login page; demo mode on any sign-in attempt
+document.addEventListener('DOMContentLoaded', function(){
+  boot();
+});
+
+async function boot(){
+  try {
+    if(!isConfigured || !sb){
+      showPage('login');
+      return;
+    }
+    // Check for existing Supabase session
+    var result = await sb.auth.getSession();
+    var session = result && result.data && result.data.session;
+    if(session && session.user){
+      onSignedIn(session.user);
+    } else {
+      showPage('login');
+    }
+    // Listen for auth state changes (handles OAuth redirects)
+    sb.auth.onAuthStateChange(function(event, session){
+      if(event === 'SIGNED_IN' && session) onSignedIn(session.user);
+      if(event === 'SIGNED_OUT') showPage('login');
+    });
+  } catch(e){
+    console.error('Boot error:', e);
     showPage('login');
-    return;
   }
-  // Check for existing session
-  var {data:{session}} = await sb.auth.getSession();
-  if(session && session.user){
-    onSignedIn(session.user);
-  } else {
-    showPage('login');
-  }
-  // Listen for auth changes (e.g. OAuth redirect)
-  sb.auth.onAuthStateChange(function(event, session){
-    if(event === 'SIGNED_IN' && session) onSignedIn(session.user);
-    if(event === 'SIGNED_OUT') showPage('login');
-  });
-})();
+}
