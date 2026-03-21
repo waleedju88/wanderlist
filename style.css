@@ -15,6 +15,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--ink)}
 /* ═══════════════ PAGES ═══════════════ */
 .page{display:none;position:fixed;inset:0;z-index:10}
 .page.active{display:flex}
+/* Login page shows by default until JS runs */
+#page-login{display:flex}
+#page-login.hidden-by-js{display:none}
 
 /* ═══════════════ LOGIN PAGE ═══════════════ */
 #page-login{
