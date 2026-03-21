@@ -96,12 +96,12 @@ var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
      2. Places API
    Then restrict the key to your Netlify / GitHub Pages domain.
 ──────────────────────────────────────────────────────────── */
-var GOOGLE_MAPS_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
+var GOOGLE_MAPS_KEY = 'AIzaSyBVdBl6PrgOFLV_0s6VDczdHrS_KUyeNdc';
 
 /* ─── detect configured ─── */
 var isConfigured = (
   SUPABASE_URL !== '' &&
-  SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+  SUPABASE_URL !== 'https://doyforyhqdcpnuxcrxvr.supabase.co' &&
   SUPABASE_URL.indexOf('supabase.co') !== -1
 );
 
