@@ -101,7 +101,7 @@ var GOOGLE_MAPS_KEY = 'AIzaSyBVdBl6PrgOFLV_0s6VDczdHrS_KUyeNdc';
 /* ─── detect configured ─── */
 var isConfigured = (
   SUPABASE_URL !== '' &&
-  SUPABASE_URL !== 'https://doyforyhqdcpnuxcrxvr.supabase.co' &&
+  SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
   SUPABASE_URL.indexOf('supabase.co') !== -1
 );
 
@@ -223,9 +223,23 @@ async function onSignedIn(user){
    PAGE ROUTING
 ═══════════════════════════════════════ */
 function showPage(name){
-  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(function(p){
+    p.classList.remove('active');
+  });
+  // Also handle the login page default-visible state
+  var loginPage = document.getElementById('page-login');
+  if(loginPage) loginPage.classList.add('hidden-by-js');
+
+  // Show the requested page
   var target = document.getElementById('page-'+name);
-  if(target) target.classList.add('active');
+  if(target){
+    target.classList.add('active');
+    // If showing login, remove the hidden class
+    if(name === 'login'){
+      target.classList.remove('hidden-by-js');
+    }
+  }
 }
 
 /* ═══════════════════════════════════════
@@ -545,7 +559,7 @@ var focusedSuggestion  = -1;
 
 // Dynamically load Google Maps only when a real key is provided
 (function loadGoogleMapsIfConfigured(){
-  if(!GOOGLE_MAPS_KEY || GOOGLE_MAPS_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') {
+  if(!GOOGLE_MAPS_KEY || GOOGLE_MAPS_KEY === '') {
     console.info('Google Maps key not set - Places search will use fallback mode');
     return;
   }
@@ -1130,17 +1144,33 @@ function confirmOk(){ document.getElementById('confirmOverlay').classList.remove
 /* ═══════════════════════════════════════
    BOOT
 ═══════════════════════════════════════ */
+
+// Show login page immediately — do not wait for anything
+// This ensures the page is NEVER blank
+(function showLoginImmediately(){
+  var loginPage = document.getElementById('page-login');
+  if(loginPage) loginPage.classList.add('active');
+})();
+
+// Then run the full boot once DOM + scripts are ready
 document.addEventListener('DOMContentLoaded', function(){
   boot();
 });
 
+// Safety fallback — if DOMContentLoaded already fired, run now
+if(document.readyState === 'complete' || document.readyState === 'interactive'){
+  setTimeout(boot, 0);
+}
+
+var bootRan = false;
 async function boot(){
+  if(bootRan) return;
+  bootRan = true;
   try {
     if(!isConfigured || !sb){
       showPage('login');
       return;
     }
-    // Check for existing Supabase session
     var result = await sb.auth.getSession();
     var session = result && result.data && result.data.session;
     if(session && session.user){
@@ -1148,7 +1178,6 @@ async function boot(){
     } else {
       showPage('login');
     }
-    // Listen for auth state changes (handles OAuth redirects)
     sb.auth.onAuthStateChange(function(event, session){
       if(event === 'SIGNED_IN' && session) onSignedIn(session.user);
       if(event === 'SIGNED_OUT') showPage('login');
