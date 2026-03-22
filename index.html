@@ -10,326 +10,254 @@
 <title>Wanderlist</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ── RESET ── */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-/* NOTE: No overflow:hidden on html/body - this was blocking iOS touches */
-html{height:100%}
-body{font-family:'DM Sans',sans-serif;background:#1A1410;color:#F5EFE0;min-height:100%}
-
-:root{
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: #1A1410; color: #F5EFE0; }
+:root {
   --sand:#F5EFE0;--sand-dark:#EDE4CC;--ink:#1A1410;--ink-light:#3D3128;
-  --terra:#C4622D;--terra-light:#E8895A;--sage:#4A7C59;--sage-light:#7EAF8E;
-  --sky:#2D6B8C;--muted:#8B7D6B;--muted-light:#B5A898;--white:#FDFAF4;
-  --red:#D93025;--sw:272px;--th:58px;
-  --cs:0 2px 20px rgba(26,20,16,.08),0 1px 4px rgba(26,20,16,.04);
-  --csh:0 8px 40px rgba(26,20,16,.14),0 2px 8px rgba(26,20,16,.06);
+  --terra:#C4622D;--terra-light:#E8895A;--sage:#4A7C59;--sky:#2D6B8C;
+  --muted:#8B7D6B;--muted-light:#B5A898;--white:#FDFAF4;--red:#D93025;
 }
-
-/* ── LOGIN PAGE ── */
-/* Simple approach - no position:fixed, just a full-screen flex div */
-#page-login{
-  display:flex;
-  min-height:100dvh;
-  width:100%;
-  background:#1A1410;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-}
-#page-login.hidden{display:none}
-
-.login-logo{text-align:center;margin-bottom:28px}
-.login-logo h1{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--sand);letter-spacing:-.02em}
-.login-logo h1 span{color:var(--terra-light);font-style:italic}
-.login-logo p{font-size:12px;color:var(--muted-light);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
-
-.login-card{
-  background:rgba(40,28,20,0.95);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:20px;
-  padding:36px 28px;
-  width:100%;
-  max-width:400px;
-}
-
-.tab-row{display:flex;background:rgba(255,255,255,.06);border-radius:10px;padding:3px;margin-bottom:24px}
-.tab-btn{flex:1;padding:9px;border-radius:8px;border:none;background:transparent;color:var(--muted-light);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;-webkit-appearance:none}
-.tab-btn.on{background:rgba(255,255,255,.14);color:var(--sand)}
-
-.auth-err{background:rgba(217,48,37,.15);border:1px solid rgba(217,48,37,.3);border-radius:8px;padding:10px 13px;font-size:13px;color:#ff8a80;margin-bottom:14px;display:none}
-.auth-err.show{display:block}
-
-.form-group{margin-bottom:14px}
-.form-label{font-size:11px;font-weight:600;color:var(--muted-light);margin-bottom:5px;display:block;letter-spacing:.06em;text-transform:uppercase}
-.form-input{width:100%;padding:13px 14px;border:1.5px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.08);font-family:'DM Sans',sans-serif;font-size:16px;color:var(--sand);outline:none;-webkit-appearance:none;display:block}
-.form-input::placeholder{color:var(--muted)}
-.form-input:focus{border-color:var(--terra-light)}
-
-.btn-full{width:100%;padding:14px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;-webkit-appearance:none;display:block}
-.btn-terra{background:var(--terra);color:#fff}
-.btn-google{background:rgba(255,255,255,.1);color:var(--sand);border:1.5px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;gap:10px}
-.google-icon{width:18px;height:18px;flex-shrink:0}
-
-.divider{display:flex;align-items:center;gap:12px;margin:16px 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
-.divider span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-
-.forgot-link{text-align:center;margin-top:8px}
-.forgot-link a{font-size:12px;color:var(--muted-light);cursor:pointer}
-
-/* ── APP PAGE ── */
-#page-app{display:none}
-#page-app.visible{display:flex;height:100dvh;width:100%;overflow:hidden}
-
-.app{display:flex;height:100%;width:100%;overflow:hidden}
-
-/* SIDEBAR */
-.sidebar{width:var(--sw);flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;height:100%;overflow-y:auto;overflow-x:hidden;transition:width .28s cubic-bezier(.4,0,.2,1);position:relative;z-index:200}
-.sidebar::-webkit-scrollbar{width:3px}
-.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
-.sidebar.collapsed{width:0;overflow:hidden}
-.sb-logo{padding:20px 18px 14px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;white-space:nowrap}
-.sb-logo h1{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--sand);letter-spacing:-.02em}
-.sb-logo h1 span{color:var(--terra-light);font-style:italic}
-.sb-logo p{font-size:10px;color:var(--muted-light);margin-top:1px;letter-spacing:.08em;text-transform:uppercase}
-.sb-sec{padding:14px 12px 4px}
-.sb-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:5px;padding:0 6px;white-space:nowrap}
-.li{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:background .15s;margin-bottom:1px;white-space:nowrap;position:relative}
-.li:hover{background:rgba(255,255,255,.07)}
-.li.active{background:rgba(196,98,45,.2)}
-.li.active .li-name{color:var(--terra-light)}
-.li-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.li-name{font-size:13px;color:rgba(245,239,224,.85);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis}
-.li-count{font-size:10px;color:var(--muted);background:rgba(255,255,255,.07);padding:2px 6px;border-radius:20px;flex-shrink:0}
-.li-lock{font-size:11px;color:var(--muted);flex-shrink:0}
-.li .li-del{display:none;width:20px;height:20px;border-radius:5px;background:transparent;border:none;color:rgba(255,255,255,.3);font-size:12px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center;padding:0;line-height:1;transition:all .15s}
-.li:hover .li-del{display:flex}
-.li .li-del:hover{background:rgba(217,48,37,.35);color:#fff}
-.btn-newlist{margin:6px 12px 4px;display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:9px;border:1.5px dashed rgba(255,255,255,.15);background:transparent;color:var(--muted-light);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .18s;width:calc(100% - 24px);white-space:nowrap}
-.btn-newlist:hover{border-color:var(--terra-light);color:var(--terra-light)}
-.sb-footer{margin-top:auto;flex-shrink:0;border-top:1px solid rgba(255,255,255,.08)}
-.sb-user{padding:12px 14px;display:flex;align-items:center;gap:8px;white-space:nowrap;cursor:pointer;transition:background .15s}
-.sb-user:hover{background:rgba(255,255,255,.04)}
-.u-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--terra),var(--sky));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:13px;color:#fff;font-weight:700;flex-shrink:0;overflow:hidden}
-.u-av img{width:100%;height:100%;object-fit:cover}
-.u-info{flex:1;min-width:0}
-.u-name{font-size:12px;font-weight:600;color:var(--sand);overflow:hidden;text-overflow:ellipsis}
-.u-role{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
-.sb-signout{padding:8px 14px 12px;display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;cursor:pointer;transition:color .15s}
-.sb-signout:hover{color:var(--terra-light)}
-
-/* BACKDROP */
-.backdrop{display:none;position:fixed;inset:0;background:rgba(26,20,16,.5);z-index:190;opacity:0;transition:opacity .25s;pointer-events:none}
-.backdrop.on{display:block;opacity:1;pointer-events:all}
-
-/* MAIN */
-.main{flex:1;min-width:0;display:flex;flex-direction:column;height:100%;overflow:hidden}
-.topbar{background:var(--white);border-bottom:1px solid var(--sand-dark);padding:0 16px;height:var(--th);display:flex;align-items:center;gap:9px;flex-shrink:0;z-index:10}
-.ham{width:34px;height:34px;border-radius:8px;background:var(--sand);border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0}
-.ham span{display:block;width:14px;height:2px;background:var(--ink-light);border-radius:2px}
-.tb-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--ink);flex:1;min-width:0;display:flex;align-items:center;gap:7px;overflow:hidden}
-.tb-title-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0;white-space:nowrap}
-.bp{background:rgba(196,98,45,.12);color:var(--terra)}
-.bs{background:rgba(74,124,89,.12);color:var(--sage)}
-.bpub{background:rgba(45,107,140,.12);color:var(--sky)}
-.tb-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.btn{display:inline-flex;align-items:center;gap:4px;padding:7px 13px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;border:none;white-space:nowrap}
-.btn-p{background:var(--terra);color:#fff}.btn-p:hover{background:#B0561F}
-.btn-s{background:var(--sand-dark);color:var(--ink-light)}.btn-s:hover{background:#E0D7C2}
-.btn-g{background:transparent;color:var(--muted);border:1.5px solid var(--sand-dark)}
-.btn-danger{background:var(--red);color:#fff}
-.lbl{display:inline}
-
-/* CONTENT */
-.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 16px 40px;-webkit-overflow-scrolling:touch}
-
-/* MAP STRIP */
-.mapstrip{border-radius:14px;overflow:hidden;height:175px;position:relative;background:#2D3B4F;margin-bottom:18px;box-shadow:var(--cs);cursor:pointer;flex-shrink:0}
-.mapbg{position:absolute;inset:0;background-color:#E8E0D0;overflow:hidden}
-.mapbg svg{width:100%;height:100%;opacity:.6}
-.mapoverlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 35%,rgba(26,20,16,.65) 100%);display:flex;align-items:flex-end;padding:14px 16px;gap:9px}
-.mapbtn{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--ink);padding:8px 15px;border-radius:22px;font-size:13px;font-weight:700;box-shadow:0 4px 18px rgba(0,0,0,.25);border:none;cursor:pointer}
-.mcount{background:var(--terra);color:#fff;padding:8px 13px;border-radius:22px;font-size:13px;font-weight:700}
-.pin{position:absolute;transform:translate(-50%,-100%);font-size:20px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4));animation:pb .4s ease both}
-@keyframes pb{from{transform:translate(-50%,-160%);opacity:0}to{transform:translate(-50%,-100%);opacity:1}}
-
-/* COLLAB BAR */
-.cbar{background:var(--white);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:18px;box-shadow:var(--cs);flex-wrap:wrap;row-gap:7px}
-.clbl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
-.cavs{display:flex}
-.cav{width:26px;height:26px;border-radius:50%;border:2px solid var(--white);margin-left:-6px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
-.cav:first-child{margin-left:0}
-.cnames{font-size:12px;color:var(--ink-light);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cacts{display:flex;gap:6px;margin-left:auto}
-.btn-inv{display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:8px;background:var(--sage);color:#fff;font-size:12px;font-weight:600;border:none;cursor:pointer}
-.btn-lnk{display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:8px;background:var(--sand-dark);color:var(--ink-light);font-size:12px;font-weight:600;border:none;cursor:pointer}
-
-/* SECTION HEADER */
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
-.sec-ttl{font-family:'Playfair Display',serif;font-size:16px;font-weight:700}
-.sec-sub{font-size:11px;color:var(--muted);margin-top:2px}
-
-/* GRID */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-
-/* PLACE CARD */
-.pcard{background:var(--white);border-radius:14px;overflow:hidden;box-shadow:var(--cs);transition:transform .2s,box-shadow .2s;cursor:pointer;animation:fu .3s ease both}
-.pcard:hover{box-shadow:var(--csh);transform:translateY(-3px)}
-.pcard-img{height:120px;position:relative;overflow:hidden}
-.pcard-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px}
-.pcard-cat{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.92);padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;color:var(--ink-light)}
-.pcard-vis{position:absolute;top:8px;right:8px;background:var(--sage);color:#fff;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600}
-.pcard-body{padding:11px 12px 12px}
-.pcard-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;margin-bottom:3px}
-.pcard-addr{font-size:11px;color:var(--muted);margin-bottom:8px}
-.pcard-note{background:var(--sand);border-radius:7px;padding:7px 9px;font-size:11px;color:var(--ink-light);margin-bottom:8px;font-style:italic;border-left:3px solid var(--terra-light);line-height:1.5}
-.pcard-ft{display:flex;align-items:center;justify-content:space-between;gap:5px}
-.pcard-contribs{display:flex}
-.contrib{width:19px;height:19px;border-radius:50%;border:2px solid var(--white);margin-left:-4px;font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;overflow:hidden}
-.contrib:first-child{margin-left:0}
-.pcard-acts{display:flex;gap:5px}
-.ibtn{width:27px;height:27px;border-radius:7px;background:var(--sand);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--muted)}
-.ibtn.nav{background:rgba(45,107,140,.1);color:var(--sky)}
-.ibtn.nav:hover{background:var(--sky);color:#fff}
-.ibtn.del{background:rgba(217,48,37,.08);color:var(--red)}
-.ibtn.del:hover{background:var(--red);color:#fff}
-.addcard{background:transparent;border:2px dashed var(--sand-dark);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:160px;cursor:pointer;color:var(--muted)}
-.addcard:hover{border-color:var(--terra-light);color:var(--terra)}
-.addcard-icon{font-size:22px}.addcard-txt{font-size:13px;font-weight:600}
-
-/* VTABS */
-.vtabs{display:flex;gap:2px;background:var(--sand-dark);border-radius:8px;padding:2px}
-.vtab{padding:5px 10px;border-radius:6px;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted)}
-.vtab.on{background:var(--white);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
-
-/* SPINNER */
-.spinner{width:32px;height:32px;border:3px solid var(--sand-dark);border-top-color:var(--terra);border-radius:50%;animation:spin .7s linear infinite;margin:60px auto}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* MODALS */
-.moverlay{position:fixed;inset:0;background:rgba(26,20,16,.5);z-index:1000;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s}
-.moverlay.on{opacity:1;pointer-events:all}
-.modal{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-height:92dvh;overflow-y:auto;box-shadow:0 -8px 50px rgba(26,20,16,.2);transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
-.moverlay.on .modal{transform:translateY(0)}
-.mhandle{width:38px;height:4px;background:var(--sand-dark);border-radius:2px;margin:10px auto 0}
-.mhdr{padding:14px 20px 0;display:flex;align-items:flex-start;justify-content:space-between}
-.mttl{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
-.msub{font-size:12px;color:var(--muted);margin-top:2px}
-.mclose{width:28px;height:28px;border-radius:7px;background:var(--sand);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--muted);flex-shrink:0;margin-left:7px}
-.mbody{padding:14px 20px 18px}
-.mfoot{padding:0 20px 28px;display:flex;gap:8px;justify-content:flex-end}
-.fg{margin-bottom:13px}
-.flbl{font-size:11px;font-weight:600;color:var(--ink-light);margin-bottom:5px;display:block;letter-spacing:.04em;text-transform:uppercase}
-.finput,.ftarea,.fsel{width:100%;padding:11px 12px;border:1.5px solid var(--sand-dark);border-radius:10px;background:var(--sand);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);outline:none;-webkit-appearance:none;appearance:none}
-.ftarea{resize:vertical;min-height:75px;line-height:1.6;font-size:14px}
-.priv-opts{display:flex;gap:7px}
-.popt{flex:1;padding:10px 5px;border:2px solid var(--sand-dark);border-radius:10px;cursor:pointer;text-align:center}
-.popt-icon{font-size:16px;margin-bottom:3px}.popt-lbl{font-size:10px;font-weight:600}
-.popt.sp{border-color:var(--terra);background:rgba(196,98,45,.05)}
-.popt.ss{border-color:var(--sage);background:rgba(74,124,89,.05)}
-.popt.spub{border-color:var(--sky);background:rgba(45,107,140,.05)}
-.swatches{display:flex;gap:7px;flex-wrap:wrap}
-.swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2.5px solid transparent}
-.swatch.on,.swatch:hover{border-color:var(--ink);transform:scale(1.15)}
-.sl-box{display:flex;gap:7px;margin-bottom:12px}
-.sl-input{flex:1;padding:10px 11px;border:1.5px solid var(--sand-dark);border-radius:10px;background:var(--sand);font-size:12px;color:var(--muted);outline:none}
-.inv-row{display:flex;gap:7px}.inv-row .finput{flex:1}
-.inv-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-.inv-person{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--sand);border-radius:9px}
-.inv-name{font-size:12px;font-weight:600;flex:1}
-.inv-role{font-size:10px;color:var(--muted);background:var(--sand-dark);padding:2px 7px;border-radius:20px}
-.det-img{height:155px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:60px;margin-bottom:14px}
-.mapfake{width:100%;height:125px;border-radius:10px;background:#E8E0D0;position:relative;overflow:hidden;margin-bottom:13px;cursor:pointer;border:2px solid var(--sand-dark)}
-.mapfake svg{width:100%;height:100%;opacity:.55}
-.mapfake-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.notes-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-.note{background:var(--sand);border-radius:9px;padding:8px 11px;border-left:3px solid var(--terra-light)}
-.note-auth{font-size:10px;font-weight:600;color:var(--terra);margin-bottom:2px}
-.note-txt{font-size:12px;color:var(--ink-light);line-height:1.5;font-style:italic}
-.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px}
-.stat-card{background:var(--white);border-radius:14px;padding:18px 16px;box-shadow:var(--cs)}
-.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--terra)}
-.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px}
-.user-table{background:var(--white);border-radius:14px;overflow:hidden;box-shadow:var(--cs)}
-.user-table-hdr{display:grid;grid-template-columns:1fr 1fr auto auto;gap:12px;padding:11px 16px;background:var(--sand-dark);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.user-row{display:grid;grid-template-columns:1fr 1fr auto auto;gap:12px;padding:11px 16px;border-bottom:1px solid var(--sand);align-items:center;font-size:13px}
-.role-badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase}
-.role-admin{background:rgba(196,98,45,.12);color:var(--terra)}
-.role-user{background:rgba(74,124,89,.12);color:var(--sage)}
-.confirm-overlay{position:fixed;inset:0;background:rgba(26,20,16,.55);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
-.confirm-overlay.on{opacity:1;pointer-events:all}
-.confirm-box{background:var(--white);border-radius:18px;padding:26px 22px 20px;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(26,20,16,.25);transform:scale(.94);transition:transform .22s cubic-bezier(.34,1.3,.64,1)}
-.confirm-overlay.on .confirm-box{transform:scale(1)}
-.confirm-icon{font-size:34px;text-align:center;margin-bottom:10px}
-.confirm-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;text-align:center;margin-bottom:5px}
-.confirm-msg{font-size:13px;color:var(--muted);text-align:center;line-height:1.5;margin-bottom:20px}
-.confirm-btns{display:flex;gap:9px}
-.confirm-btns .btn{flex:1;justify-content:center}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--sand);padding:11px 18px;border-radius:22px;font-size:13px;font-weight:500;box-shadow:0 8px 26px rgba(0,0,0,.28);z-index:9998;opacity:0;transition:all .3s cubic-bezier(.34,1.2,.64,1);white-space:nowrap;pointer-events:none}
-.toast.on{transform:translateX(-50%) translateY(0);opacity:1}
-@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.bnav{display:none;background:var(--ink);padding:8px 0 max(8px,env(safe-area-inset-bottom));flex-shrink:0}
-.bnav-inner{display:flex;justify-content:space-around}
-.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 10px;color:var(--muted)}
-.bnav-btn.on{color:var(--terra-light)}
-.bnav-btn .bi{font-size:19px}.bnav-btn .bl{font-size:9px;font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-
-/* PLACES SEARCH */
-.places-search-wrap{position:relative;display:flex;align-items:center}
-.places-search-icon{position:absolute;left:12px;font-size:15px;pointer-events:none;z-index:1}
-.places-search-input{padding-left:36px !important;padding-right:36px !important}
-.places-clear-btn{position:absolute;right:10px;background:var(--sand-dark);border:none;border-radius:50%;width:20px;height:20px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted)}
-.places-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--white);border:1.5px solid var(--sand-dark);border-radius:12px;box-shadow:0 8px 32px rgba(26,20,16,.12);z-index:500;overflow:hidden;display:none;max-height:260px;overflow-y:auto}
-.places-dropdown.open{display:block}
-.places-suggestion{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--sand)}
-.places-suggestion:last-child{border-bottom:none}
-.places-suggestion:hover{background:var(--sand)}
-.places-suggestion-icon{width:32px;height:32px;border-radius:8px;background:var(--sand-dark);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.places-suggestion-main{font-size:13px;font-weight:600;color:var(--ink)}
-.places-suggestion-sub{font-size:11px;color:var(--muted);margin-top:1px}
-.places-loading{padding:16px 14px;text-align:center;font-size:13px;color:var(--muted)}
-.places-no-results{padding:14px;text-align:center;font-size:13px;color:var(--muted)}
-.place-preview{border-radius:13px;overflow:hidden;border:1.5px solid var(--sand-dark);margin-bottom:14px;background:var(--white)}
-.place-preview-img{height:150px;background:linear-gradient(135deg,var(--sand-dark),#D4C9B0);position:relative;overflow:hidden}
-.place-preview-img img{width:100%;height:100%;object-fit:cover}
-.place-preview-img-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;opacity:.5}
-.place-preview-body{padding:12px 14px 14px}
-.place-preview-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:3px}
-.place-preview-addr{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.4}
-.place-preview-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.place-preview-type{background:var(--sand-dark);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;color:var(--ink-light)}
-.place-preview-rating{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--ink-light)}
-.place-preview-gmaps{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--sky);text-decoration:none;padding:5px 11px;border-radius:8px;background:rgba(45,107,140,.08)}
-
+#page-login { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; background:#1A1410; }
+.login-card { background:#2A1A10; border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:36px 28px; width:100%; max-width:400px; }
+.login-logo { text-align:center; margin-bottom:28px; }
+.login-logo h1 { font-family:'Playfair Display',serif; font-size:30px; font-weight:700; color:#F5EFE0; letter-spacing:-.02em; }
+.login-logo h1 span { color:#E8895A; font-style:italic; }
+.login-logo p { font-size:12px; color:#B5A898; margin-top:4px; letter-spacing:.1em; text-transform:uppercase; }
+.tab-row { display:flex; background:rgba(255,255,255,.06); border-radius:10px; padding:3px; margin-bottom:24px; }
+.tab-btn { flex:1; padding:9px; border-radius:8px; border:none; background:transparent; color:#B5A898; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
+.tab-btn.on { background:rgba(255,255,255,.14); color:#F5EFE0; }
+.auth-err { background:rgba(217,48,37,.15); border:1px solid rgba(217,48,37,.3); border-radius:8px; padding:10px 13px; font-size:13px; color:#ff8a80; margin-bottom:14px; display:none; }
+.auth-err.show { display:block; }
+.form-group { margin-bottom:14px; }
+.form-label { font-size:11px; font-weight:600; color:#B5A898; margin-bottom:5px; display:block; letter-spacing:.06em; text-transform:uppercase; }
+.form-input { width:100%; padding:13px 14px; border:1.5px solid rgba(255,255,255,.12); border-radius:10px; background:rgba(255,255,255,.08); font-family:'DM Sans',sans-serif; font-size:16px; color:#F5EFE0; outline:none; display:block; }
+.form-input::placeholder { color:#8B7D6B; }
+.form-input:focus { border-color:#E8895A; }
+.btn-full { width:100%; padding:14px; border-radius:10px; border:none; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; margin-bottom:12px; display:block; }
+.btn-terra { background:#C4622D; color:#fff; }
+.btn-google { background:rgba(255,255,255,.1); color:#F5EFE0; border:1.5px solid rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; gap:10px; }
+.google-icon { width:18px; height:18px; flex-shrink:0; }
+.divider { display:flex; align-items:center; gap:12px; margin:16px 0; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.1); }
+.divider span { font-size:11px; color:#8B7D6B; text-transform:uppercase; letter-spacing:.06em; }
+.forgot-link { text-align:center; margin-top:8px; }
+.forgot-link a { font-size:12px; color:#B5A898; cursor:pointer; }
+#page-app { display:none; height:100vh; overflow:hidden; }
+#page-app.show { display:flex; }
+.app { display:flex; height:100%; width:100%; overflow:hidden; }
+.sidebar { width:272px; flex-shrink:0; background:#1A1410; display:flex; flex-direction:column; height:100%; overflow-y:auto; position:relative; z-index:200; transition:width .28s ease; }
+.sidebar.collapsed { width:0; overflow:hidden; }
+.sb-logo { padding:20px 18px 14px; border-bottom:1px solid rgba(255,255,255,.08); flex-shrink:0; white-space:nowrap; }
+.sb-logo h1 { font-family:'Playfair Display',serif; font-size:19px; font-weight:700; color:#F5EFE0; letter-spacing:-.02em; }
+.sb-logo h1 span { color:#E8895A; font-style:italic; }
+.sb-logo p { font-size:10px; color:#B5A898; margin-top:1px; letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
+.sb-sec { padding:14px 12px 4px; }
+.sb-lbl { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#8B7D6B; font-weight:600; margin-bottom:5px; padding:0 6px; white-space:nowrap; }
+.li { display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:9px; cursor:pointer; margin-bottom:1px; white-space:nowrap; }
+.li:hover { background:rgba(255,255,255,.07); }
+.li.active { background:rgba(196,98,45,.2); }
+.li.active .li-name { color:#E8895A; }
+.li-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.li-name { font-size:13px; color:rgba(245,239,224,.85); font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; }
+.li-count { font-size:10px; color:#8B7D6B; background:rgba(255,255,255,.07); padding:2px 6px; border-radius:20px; flex-shrink:0; }
+.li-lock { font-size:11px; color:#8B7D6B; flex-shrink:0; }
+.li-del { display:none; width:20px; height:20px; border-radius:5px; background:transparent; border:none; color:rgba(255,255,255,.3); font-size:12px; cursor:pointer; flex-shrink:0; align-items:center; justify-content:center; padding:0; }
+.li:hover .li-del { display:flex; }
+.li-del:hover { background:rgba(217,48,37,.35); color:#fff; }
+.btn-newlist { margin:6px 12px 4px; display:flex; align-items:center; gap:7px; padding:9px 11px; border-radius:9px; border:1.5px dashed rgba(255,255,255,.15); background:transparent; color:#B5A898; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; width:calc(100% - 24px); white-space:nowrap; }
+.btn-newlist:hover { border-color:#E8895A; color:#E8895A; }
+.sb-footer { margin-top:auto; flex-shrink:0; border-top:1px solid rgba(255,255,255,.08); }
+.sb-user { padding:12px 14px; display:flex; align-items:center; gap:8px; cursor:pointer; white-space:nowrap; }
+.sb-user:hover { background:rgba(255,255,255,.04); }
+.u-av { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#C4622D,#2D6B8C); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:13px; color:#fff; font-weight:700; flex-shrink:0; overflow:hidden; }
+.u-av img { width:100%; height:100%; object-fit:cover; }
+.u-info { flex:1; min-width:0; }
+.u-name { font-size:12px; font-weight:600; color:#F5EFE0; overflow:hidden; text-overflow:ellipsis; }
+.u-role { font-size:10px; color:#8B7D6B; }
+.sb-signout { padding:8px 14px 12px; display:flex; align-items:center; gap:7px; color:#8B7D6B; font-size:12px; cursor:pointer; }
+.sb-signout:hover { color:#E8895A; }
+.backdrop { display:none; position:fixed; inset:0; background:rgba(26,20,16,.5); z-index:190; }
+.backdrop.on { display:block; }
+.main { flex:1; min-width:0; display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.topbar { background:#FDFAF4; border-bottom:1px solid #EDE4CC; padding:0 16px; height:58px; display:flex; align-items:center; gap:9px; flex-shrink:0; }
+.ham { width:34px; height:34px; border-radius:8px; background:#F5EFE0; border:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; flex-shrink:0; }
+.ham span { display:block; width:14px; height:2px; background:#3D3128; border-radius:2px; }
+.tb-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:#1A1410; flex:1; min-width:0; display:flex; align-items:center; gap:7px; overflow:hidden; }
+.tb-title-txt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.badge { font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px; letter-spacing:.04em; text-transform:uppercase; flex-shrink:0; white-space:nowrap; }
+.bs { background:rgba(74,124,89,.12); color:#4A7C59; }
+.bp { background:rgba(196,98,45,.12); color:#C4622D; }
+.bpub { background:rgba(45,107,140,.12); color:#2D6B8C; }
+.tb-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.btn { display:inline-flex; align-items:center; gap:4px; padding:7px 13px; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; border:none; white-space:nowrap; }
+.btn-p { background:#C4622D; color:#fff; }
+.btn-s { background:#EDE4CC; color:#3D3128; }
+.btn-g { background:transparent; color:#8B7D6B; border:1.5px solid #EDE4CC; }
+.btn-danger { background:#D93025; color:#fff; }
+.lbl { display:inline; }
+.vtabs { display:flex; gap:2px; background:#EDE4CC; border-radius:8px; padding:2px; }
+.vtab { padding:5px 10px; border-radius:6px; border:none; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; background:transparent; color:#8B7D6B; }
+.vtab.on { background:#FDFAF4; color:#1A1410; }
+.content { flex:1; overflow-y:auto; overflow-x:hidden; padding:20px 16px 40px; background:#F5EFE0; }
+.mapstrip { border-radius:14px; overflow:hidden; height:175px; position:relative; background:#2D3B4F; margin-bottom:18px; cursor:pointer; }
+.mapbg { position:absolute; inset:0; background:#E8E0D0; overflow:hidden; }
+.mapbg svg { width:100%; height:100%; opacity:.6; }
+.mapoverlay { position:absolute; inset:0; background:linear-gradient(to bottom,transparent 35%,rgba(26,20,16,.65) 100%); display:flex; align-items:flex-end; padding:14px 16px; gap:9px; }
+.mapbtn { display:inline-flex; align-items:center; gap:6px; background:#fff; color:#1A1410; padding:8px 15px; border-radius:22px; font-size:13px; font-weight:700; border:none; cursor:pointer; }
+.mcount { background:#C4622D; color:#fff; padding:8px 13px; border-radius:22px; font-size:13px; font-weight:700; }
+.pin { position:absolute; transform:translate(-50%,-100%); font-size:20px; filter:drop-shadow(0 2px 5px rgba(0,0,0,.4)); animation:pb .4s ease both; }
+@keyframes pb { from{transform:translate(-50%,-160%);opacity:0} to{transform:translate(-50%,-100%);opacity:1} }
+.sec-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.sec-ttl { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; }
+.sec-sub { font-size:11px; color:#8B7D6B; margin-top:2px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; }
+.pcard { background:#FDFAF4; border-radius:14px; overflow:hidden; cursor:pointer; box-shadow:0 2px 20px rgba(26,20,16,.08); animation:fu .3s ease both; }
+.pcard:hover { transform:translateY(-2px); }
+.pcard-img { height:120px; position:relative; overflow:hidden; }
+.pcard-emoji { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:44px; }
+.pcard-cat { position:absolute; top:8px; left:8px; background:rgba(255,255,255,.92); padding:3px 8px; border-radius:20px; font-size:10px; font-weight:600; color:#3D3128; }
+.pcard-vis { position:absolute; top:8px; right:8px; background:#4A7C59; color:#fff; padding:3px 8px; border-radius:20px; font-size:10px; font-weight:600; }
+.pcard-body { padding:11px 12px 12px; }
+.pcard-name { font-family:'Playfair Display',serif; font-size:14px; font-weight:700; margin-bottom:3px; }
+.pcard-addr { font-size:11px; color:#8B7D6B; margin-bottom:8px; }
+.pcard-note { background:#F5EFE0; border-radius:7px; padding:7px 9px; font-size:11px; color:#3D3128; margin-bottom:8px; font-style:italic; border-left:3px solid #E8895A; line-height:1.5; }
+.pcard-ft { display:flex; align-items:center; justify-content:space-between; gap:5px; }
+.pcard-contribs { display:flex; }
+.pcard-acts { display:flex; gap:5px; }
+.ibtn { width:27px; height:27px; border-radius:7px; background:#F5EFE0; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; color:#8B7D6B; }
+.ibtn.nav { background:rgba(45,107,140,.1); color:#2D6B8C; }
+.ibtn.nav:hover { background:#2D6B8C; color:#fff; }
+.ibtn.del { background:rgba(217,48,37,.08); color:#D93025; }
+.ibtn.del:hover { background:#D93025; color:#fff; }
+.addcard { background:transparent; border:2px dashed #EDE4CC; border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; min-height:160px; cursor:pointer; color:#8B7D6B; }
+.addcard:hover { border-color:#E8895A; color:#C4622D; }
+.spinner { width:32px; height:32px; border:3px solid #EDE4CC; border-top-color:#C4622D; border-radius:50%; animation:spin .7s linear infinite; margin:60px auto; }
+@keyframes spin { to{transform:rotate(360deg)} }
+@keyframes fu { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.moverlay { position:fixed; inset:0; background:rgba(26,20,16,.5); z-index:1000; display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity .22s; }
+.moverlay.on { opacity:1; pointer-events:all; }
+.modal { background:#FDFAF4; border-radius:22px 22px 0 0; width:100%; max-height:92vh; overflow-y:auto; box-shadow:0 -8px 50px rgba(26,20,16,.2); transform:translateY(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); }
+.moverlay.on .modal { transform:translateY(0); }
+.mhandle { width:38px; height:4px; background:#EDE4CC; border-radius:2px; margin:10px auto 0; }
+.mhdr { padding:14px 20px 0; display:flex; align-items:flex-start; justify-content:space-between; }
+.mttl { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; }
+.msub { font-size:12px; color:#8B7D6B; margin-top:2px; }
+.mclose { width:28px; height:28px; border-radius:7px; background:#F5EFE0; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; color:#8B7D6B; flex-shrink:0; margin-left:7px; }
+.mbody { padding:14px 20px 18px; }
+.mfoot { padding:0 20px 28px; display:flex; gap:8px; justify-content:flex-end; }
+.fg { margin-bottom:13px; }
+.flbl { font-size:11px; font-weight:600; color:#3D3128; margin-bottom:5px; display:block; letter-spacing:.04em; text-transform:uppercase; }
+.finput,.ftarea,.fsel { width:100%; padding:11px 12px; border:1.5px solid #EDE4CC; border-radius:10px; background:#F5EFE0; font-family:'DM Sans',sans-serif; font-size:15px; color:#1A1410; outline:none; display:block; }
+.ftarea { resize:vertical; min-height:75px; line-height:1.6; }
+.priv-opts { display:flex; gap:7px; }
+.popt { flex:1; padding:10px 5px; border:2px solid #EDE4CC; border-radius:10px; cursor:pointer; text-align:center; }
+.popt-icon { font-size:16px; margin-bottom:3px; }
+.popt-lbl { font-size:10px; font-weight:600; }
+.popt.sp { border-color:#C4622D; background:rgba(196,98,45,.05); }
+.popt.ss { border-color:#4A7C59; background:rgba(74,124,89,.05); }
+.popt.spub { border-color:#2D6B8C; background:rgba(45,107,140,.05); }
+.swatches { display:flex; gap:7px; flex-wrap:wrap; }
+.swatch { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2.5px solid transparent; }
+.swatch.on { border-color:#1A1410; transform:scale(1.15); }
+.sl-box { display:flex; gap:7px; margin-bottom:12px; }
+.sl-input { flex:1; padding:10px 11px; border:1.5px solid #EDE4CC; border-radius:10px; background:#F5EFE0; font-size:12px; color:#8B7D6B; outline:none; }
+.inv-row { display:flex; gap:7px; }
+.inv-row .finput { flex:1; }
+.inv-list { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.inv-person { display:flex; align-items:center; gap:8px; padding:8px 10px; background:#F5EFE0; border-radius:9px; }
+.inv-name { font-size:12px; font-weight:600; flex:1; }
+.inv-role { font-size:10px; color:#8B7D6B; background:#EDE4CC; padding:2px 7px; border-radius:20px; }
+.det-img { height:155px; border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:60px; margin-bottom:14px; }
+.mapfake { width:100%; height:125px; border-radius:10px; background:#E8E0D0; position:relative; overflow:hidden; margin-bottom:13px; cursor:pointer; border:2px solid #EDE4CC; }
+.mapfake svg { width:100%; height:100%; opacity:.55; }
+.mapfake-ov { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.notes-list { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+.note { background:#F5EFE0; border-radius:9px; padding:8px 11px; border-left:3px solid #E8895A; }
+.note-auth { font-size:10px; font-weight:600; color:#C4622D; margin-bottom:2px; }
+.note-txt { font-size:12px; color:#3D3128; line-height:1.5; font-style:italic; }
+.admin-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+.stat-card { background:#FDFAF4; border-radius:14px; padding:18px 16px; box-shadow:0 2px 20px rgba(26,20,16,.08); }
+.stat-num { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:#C4622D; }
+.stat-lbl { font-size:12px; color:#8B7D6B; margin-top:2px; }
+.user-table { background:#FDFAF4; border-radius:14px; overflow:hidden; box-shadow:0 2px 20px rgba(26,20,16,.08); }
+.user-table-hdr { display:grid; grid-template-columns:1fr 1fr auto auto; gap:12px; padding:11px 16px; background:#EDE4CC; font-size:11px; font-weight:600; color:#8B7D6B; text-transform:uppercase; }
+.user-row { display:grid; grid-template-columns:1fr 1fr auto auto; gap:12px; padding:11px 16px; border-bottom:1px solid #F5EFE0; align-items:center; font-size:13px; }
+.role-admin { background:rgba(196,98,45,.12); color:#C4622D; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; }
+.role-user { background:rgba(74,124,89,.12); color:#4A7C59; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; }
+.confirm-overlay { position:fixed; inset:0; background:rgba(26,20,16,.55); z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .2s; }
+.confirm-overlay.on { opacity:1; pointer-events:all; }
+.confirm-box { background:#FDFAF4; border-radius:18px; padding:26px 22px 20px; max-width:320px; width:100%; transform:scale(.94); transition:transform .22s; }
+.confirm-overlay.on .confirm-box { transform:scale(1); }
+.confirm-icon { font-size:34px; text-align:center; margin-bottom:10px; }
+.confirm-title { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; text-align:center; margin-bottom:5px; }
+.confirm-msg { font-size:13px; color:#8B7D6B; text-align:center; line-height:1.5; margin-bottom:20px; }
+.confirm-btns { display:flex; gap:9px; }
+.confirm-btns .btn { flex:1; justify-content:center; }
+.toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(80px); background:#1A1410; color:#F5EFE0; padding:11px 18px; border-radius:22px; font-size:13px; font-weight:500; z-index:9998; opacity:0; transition:all .3s; white-space:nowrap; pointer-events:none; }
+.toast.on { transform:translateX(-50%) translateY(0); opacity:1; }
+.places-search-wrap { position:relative; display:flex; align-items:center; }
+.places-search-icon { position:absolute; left:12px; font-size:15px; pointer-events:none; z-index:1; }
+.places-search-input { padding-left:36px !important; padding-right:36px !important; }
+.places-clear-btn { position:absolute; right:10px; background:#EDE4CC; border:none; border-radius:50%; width:20px; height:20px; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#8B7D6B; }
+.places-dropdown { position:absolute; top:calc(100% + 4px); left:0; right:0; background:#FDFAF4; border:1.5px solid #EDE4CC; border-radius:12px; box-shadow:0 8px 32px rgba(26,20,16,.12); z-index:500; overflow:hidden; display:none; max-height:260px; overflow-y:auto; }
+.places-dropdown.open { display:block; }
+.places-suggestion { display:flex; align-items:center; gap:10px; padding:11px 14px; cursor:pointer; border-bottom:1px solid #F5EFE0; }
+.places-suggestion:last-child { border-bottom:none; }
+.places-suggestion:hover { background:#F5EFE0; }
+.places-suggestion-icon { width:32px; height:32px; border-radius:8px; background:#EDE4CC; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.places-suggestion-main { font-size:13px; font-weight:600; color:#1A1410; }
+.places-suggestion-sub { font-size:11px; color:#8B7D6B; margin-top:1px; }
+.places-loading { padding:16px 14px; text-align:center; font-size:13px; color:#8B7D6B; }
+.places-no-results { padding:14px; text-align:center; font-size:13px; color:#8B7D6B; }
+.place-preview { border-radius:13px; overflow:hidden; border:1.5px solid #EDE4CC; margin-bottom:14px; background:#FDFAF4; }
+.place-preview-img { height:150px; background:linear-gradient(135deg,#EDE4CC,#D4C9B0); position:relative; overflow:hidden; }
+.place-preview-img img { width:100%; height:100%; object-fit:cover; }
+.place-preview-img-fallback { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:52px; opacity:.5; }
+.place-preview-body { padding:12px 14px 14px; }
+.place-preview-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; margin-bottom:3px; }
+.place-preview-addr { font-size:12px; color:#8B7D6B; margin-bottom:8px; line-height:1.4; }
+.place-preview-meta { display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+.place-preview-type { background:#EDE4CC; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; color:#3D3128; }
+.place-preview-gmaps { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#2D6B8C; text-decoration:none; padding:5px 11px; border-radius:8px; background:rgba(45,107,140,.08); }
+.bnav { display:none; background:#1A1410; padding:8px 0; flex-shrink:0; }
+.bnav-inner { display:flex; justify-content:space-around; }
+.bnav-btn { display:flex; flex-direction:column; align-items:center; gap:2px; background:none; border:none; cursor:pointer; padding:4px 10px; color:#8B7D6B; }
+.bnav-btn.on { color:#E8895A; }
+.bnav-btn .bi { font-size:19px; }
+.bnav-btn .bl { font-size:9px; font-family:'DM Sans',sans-serif; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
 @media(max-width:680px){
-  :root{--th:52px}
-  .sidebar{position:fixed;top:0;left:0;bottom:0;width:80vw;max-width:290px;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:200}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:80vw;max-width:290px;transform:translateX(-100%);transition:transform .28s ease;z-index:200}
   .sidebar.open{transform:translateX(0)}
   .sidebar.collapsed{width:80vw;max-width:290px;transform:translateX(-100%)}
   .topbar{padding:0 12px;gap:7px}
   .tb-title{font-size:13px}
   .lbl{display:none}
   .btn{padding:7px 10px}
-  .content{padding:14px 12px max(90px,calc(80px + env(safe-area-inset-bottom)))}
+  .content{padding:14px 12px 100px}
   .mapstrip{height:150px}
   .grid{grid-template-columns:1fr 1fr;gap:10px}
-  .cnames{display:none}
   .bnav{display:block}
-  .backdrop{display:block}
 }
 @media(max-width:380px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- DEBUG BAR - remove after fixing -->
+<div id="debug-bar" style="position:fixed;top:0;left:0;right:0;background:#ff6b35;color:#fff;font-size:13px;font-family:monospace;padding:6px 10px;z-index:99999;text-align:center">
+  JS loading... (if you see this after 3 seconds, JavaScript is blocked)
+</div>
+
+<script>
+// This runs immediately - if it runs, JS is working
+document.getElementById('debug-bar').textContent = 'JS OK - wiring buttons...';
+document.getElementById('debug-bar').style.background = '#27ae60';
+</script>
+
+<!-- LOGIN -->
 <div id="page-login">
   <div class="login-card">
-    <div class="login-logo">
-      <h1>Wander<span>list</span></h1>
-      <p>Plan trips together</p>
-    </div>
+    <div class="login-logo"><h1>Wander<span>list</span></h1><p>Plan trips together</p></div>
     <div class="tab-row">
       <button class="tab-btn on" id="tab-login">Sign In</button>
       <button class="tab-btn" id="tab-signup">Sign Up</button>
@@ -354,7 +282,7 @@ body{font-family:'DM Sans',sans-serif;background:#1A1410;color:#F5EFE0;min-heigh
   </div>
 </div>
 
-<!-- APP PAGE -->
+<!-- APP -->
 <div id="page-app">
 <div class="app">
   <div class="backdrop" id="backdrop"></div>
@@ -393,1340 +321,431 @@ body{font-family:'DM Sans',sans-serif;background:#1A1410;color:#F5EFE0;min-heigh
 <!-- MODALS -->
 <div class="moverlay" id="m-newlist"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Create New List</div><div class="msub">Organise your destinations</div></div><button class="mclose" id="close-newlist">&#10005;</button></div><div class="mbody"><div class="fg"><label class="flbl">List Name</label><input class="finput" id="nl-name" placeholder="e.g. Tokyo Foodie Tour"></div><div class="fg"><label class="flbl">Description</label><input class="finput" id="nl-desc" placeholder="What is this trip about?"></div><div class="fg"><label class="flbl">Colour</label><div class="swatches" id="nl-swatches"><div class="swatch on" style="background:#C4622D"></div><div class="swatch" style="background:#2D6B8C"></div><div class="swatch" style="background:#4A7C59"></div><div class="swatch" style="background:#8B4513"></div><div class="swatch" style="background:#6B4C9A"></div><div class="swatch" style="background:#C44B6B"></div><div class="swatch" style="background:#2D7A6B"></div></div></div><div class="fg"><label class="flbl">Privacy</label><div class="priv-opts" id="nl-priv"><div class="popt sp" data-priv="p"><div class="popt-icon">&#128274;</div><div class="popt-lbl">Private</div></div><div class="popt" data-priv="s"><div class="popt-icon">&#128101;</div><div class="popt-lbl">Shared</div></div><div class="popt" data-priv="pub"><div class="popt-icon">&#127757;</div><div class="popt-lbl">Public</div></div></div></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-newlist">Cancel</button><button class="btn btn-p" id="submit-newlist">Create List</button></div></div></div>
 
-<div class="moverlay" id="m-addplace"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Add a Place</div><div class="msub">Search Google Maps</div></div><button class="mclose" id="close-addplace">&#10005;</button></div><div class="mbody"><div class="fg" style="position:relative"><label class="flbl">Search Google Maps</label><div class="places-search-wrap"><span class="places-search-icon">&#128269;</span><input class="finput places-search-input" id="ap-search" placeholder="e.g. Eiffel Tower, Paris..." autocomplete="off"><button class="places-clear-btn" id="ap-clear" style="display:none">&#10005;</button></div><div class="places-dropdown" id="places-dropdown"></div></div><div class="place-preview" id="place-preview" style="display:none"><div class="place-preview-img" id="pp-img"><div class="place-preview-img-fallback">&#128205;</div></div><div class="place-preview-body"><div class="place-preview-name" id="pp-name"></div><div class="place-preview-addr" id="pp-addr"></div><div class="place-preview-meta"><span class="place-preview-type" id="pp-type"></span><span class="place-preview-rating" id="pp-rating"></span></div><a class="place-preview-gmaps" id="pp-gmaps" target="_blank" rel="noopener">&#128506; View on Google Maps</a></div></div><div id="ap-extra" style="display:none"><div class="fg"><label class="flbl">Category</label><select class="fsel" id="ap-cat"><option>Food and Drink</option><option>Culture and Sights</option><option>Nature and Parks</option><option>Shopping</option><option>Accommodation</option><option>Entertainment</option></select></div><div class="fg"><label class="flbl">Your Note</label><textarea class="ftarea" id="ap-note" placeholder="Tips, memories..."></textarea></div><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:4px"><input type="checkbox" id="ap-vis" style="accent-color:var(--sage);width:15px;height:15px"> Mark as visited</label></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-addplace">Cancel</button><button class="btn btn-p" id="submit-addplace" disabled style="opacity:.45">Add Place</button></div></div></div>
+<div class="moverlay" id="m-addplace"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Add a Place</div><div class="msub">Search Google Maps</div></div><button class="mclose" id="close-addplace">&#10005;</button></div><div class="mbody"><div class="fg" style="position:relative"><label class="flbl">Search Google Maps</label><div class="places-search-wrap"><span class="places-search-icon">&#128269;</span><input class="finput places-search-input" id="ap-search" placeholder="e.g. Eiffel Tower, Paris..." autocomplete="off"><button class="places-clear-btn" id="ap-clear" style="display:none">&#10005;</button></div><div class="places-dropdown" id="places-dropdown"></div></div><div class="place-preview" id="place-preview" style="display:none"><div class="place-preview-img" id="pp-img"><div class="place-preview-img-fallback">&#128205;</div></div><div class="place-preview-body"><div class="place-preview-name" id="pp-name"></div><div class="place-preview-addr" id="pp-addr"></div><div class="place-preview-meta"><span class="place-preview-type" id="pp-type"></span><span id="pp-rating"></span></div><a class="place-preview-gmaps" id="pp-gmaps" target="_blank" rel="noopener">&#128506; View on Google Maps</a></div></div><div id="ap-extra" style="display:none"><div class="fg"><label class="flbl">Category</label><select class="fsel" id="ap-cat"><option>Food and Drink</option><option>Culture and Sights</option><option>Nature and Parks</option><option>Shopping</option><option>Accommodation</option><option>Entertainment</option></select></div><div class="fg"><label class="flbl">Your Note</label><textarea class="ftarea" id="ap-note" placeholder="Tips, memories..."></textarea></div><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:4px"><input type="checkbox" id="ap-vis" style="accent-color:#4A7C59;width:15px;height:15px"> Mark as visited</label></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-addplace">Cancel</button><button class="btn btn-p" id="submit-addplace" disabled style="opacity:.45">Add Place</button></div></div></div>
 
-<div class="moverlay" id="m-share"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Share List</div><div class="msub">Invite friends to collaborate</div></div><button class="mclose" id="close-share">&#10005;</button></div><div class="mbody"><div class="fg"><label class="flbl">Share Link</label><div class="sl-box"><input class="sl-input" id="sharelink" value="wanderlist..." readonly><button class="btn btn-s" id="btn-copylink">Copy</button></div></div><div class="fg"><label class="flbl">Invite by Email</label><div class="inv-row"><input class="finput" id="inv-email" placeholder="friend@gmail.com"><button class="btn btn-p" id="btn-invite">Invite</button></div></div><div class="inv-list" id="inv-list"></div></div><div class="mfoot"><button class="btn btn-p" id="done-share">Done</button></div></div></div>
+<div class="moverlay" id="m-share"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Share List</div><div class="msub">Invite friends to collaborate</div></div><button class="mclose" id="close-share">&#10005;</button></div><div class="mbody"><div class="fg"><label class="flbl">Share Link</label><div class="sl-box"><input class="sl-input" id="sharelink" value="Loading..." readonly><button class="btn btn-s" id="btn-copylink">Copy</button></div></div><div class="fg"><label class="flbl">Invite by Email</label><div class="inv-row"><input class="finput" id="inv-email" placeholder="friend@gmail.com"><button class="btn btn-p" id="btn-invite">Invite</button></div></div><div class="inv-list" id="inv-list"></div></div><div class="mfoot"><button class="btn btn-p" id="done-share">Done</button></div></div></div>
 
 <div class="moverlay" id="m-detail"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl" id="det-title">Place</div><div class="msub" id="det-addr"></div></div><button class="mclose" id="close-detail">&#10005;</button></div><div class="mbody"><div class="det-img" id="det-img"></div><div class="mapfake" id="det-maplink"><svg viewBox="0 0 560 130" preserveAspectRatio="xMidYMid slice"><rect width="560" height="130" fill="#E8E0D0"/><path d="M0,55 Q150,35 300,65 Q450,95 560,55" stroke="#D4C9B0" stroke-width="16" fill="none"/><path d="M0,95 Q100,85 200,100 Q350,118 500,95 L560,102" stroke="#D4C9B0" stroke-width="10" fill="none"/><rect x="50" y="18" width="50" height="30" rx="3" fill="#C8BDAA"/><rect x="240" y="28" width="65" height="40" rx="3" fill="#C8BDAA"/><rect x="380" y="50" width="55" height="34" rx="3" fill="#C8BDAA"/></svg><div class="mapfake-ov"><button class="mapbtn">&#129517; Navigate</button></div></div><div class="fg"><label class="flbl">Group Notes</label><div class="notes-list" id="det-notes"></div><div style="display:flex;gap:7px"><input class="finput" id="note-input" placeholder="Add your note..." style="flex:1"><button class="btn btn-p" id="btn-addnote">Add</button></div></div></div><div class="mfoot"><button class="btn btn-s" id="btn-markvisited">&#10003; Mark Visited</button><button class="btn btn-p" id="btn-navigate">&#129517; Navigate</button></div></div></div>
 
-<div class="moverlay" id="m-admin"><div class="modal" style="max-height:96dvh"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Admin Dashboard</div><div class="msub">Manage users and content</div></div><button class="mclose" id="close-admin">&#10005;</button></div><div class="mbody"><div class="admin-grid"><div class="stat-card"><div class="stat-num" id="stat-users">-</div><div class="stat-lbl">Total Users</div></div><div class="stat-card"><div class="stat-num" id="stat-lists">-</div><div class="stat-lbl">Total Lists</div></div><div class="stat-card"><div class="stat-num" id="stat-places">-</div><div class="stat-lbl">Total Places</div></div><div class="stat-card"><div class="stat-num" id="stat-notes">-</div><div class="stat-lbl">Total Notes</div></div></div><div class="sec-hdr"><div class="sec-ttl">All Users</div></div><div class="user-table"><div class="user-table-hdr"><span>Name</span><span>Joined</span><span>Role</span><span>Action</span></div><div id="admin-user-list"><div class="spinner"></div></div></div></div></div></div>
+<div class="moverlay" id="m-admin"><div class="modal" style="max-height:92vh"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Admin Dashboard</div><div class="msub">Manage users and content</div></div><button class="mclose" id="close-admin">&#10005;</button></div><div class="mbody"><div class="admin-grid"><div class="stat-card"><div class="stat-num" id="stat-users">-</div><div class="stat-lbl">Total Users</div></div><div class="stat-card"><div class="stat-num" id="stat-lists">-</div><div class="stat-lbl">Total Lists</div></div><div class="stat-card"><div class="stat-num" id="stat-places">-</div><div class="stat-lbl">Total Places</div></div><div class="stat-card"><div class="stat-num" id="stat-notes">-</div><div class="stat-lbl">Total Notes</div></div></div><div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:14px">All Users</div><div class="user-table"><div class="user-table-hdr"><span>Name</span><span>Joined</span><span>Role</span><span>Action</span></div><div id="admin-user-list"><div class="spinner"></div></div></div></div></div></div>
 
 <div class="confirm-overlay" id="confirmOverlay"><div class="confirm-box"><div class="confirm-icon" id="confirmIcon">&#128465;&#65039;</div><div class="confirm-title" id="confirmTitle">Delete?</div><div class="confirm-msg" id="confirmMsg">This cannot be undone.</div><div class="confirm-btns"><button class="btn btn-s" id="confirm-cancel">Cancel</button><button class="btn btn-danger" id="confirm-ok">Delete</button></div></div></div>
 
 <div class="toast" id="toastEl"></div>
 
-<!-- Supabase loads synchronously before our script -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Wanderlist - app.js
-// Wanderlist - app.js
-/* ═══════════════════════════════════════════════════════
-   SUPABASE CONFIG
-   -------------------------------------------------------
-   1. Go to https://supabase.com and create a free project
-   2. Go to Settings > API and copy:
-      - Project URL  →  replace SUPABASE_URL below
-      - anon/public key  →  replace SUPABASE_ANON_KEY below
-   3. Run this SQL in Supabase SQL Editor to create tables:
-
-   -- Profiles table (extends auth.users)
-   create table public.profiles (
-     id uuid references auth.users(id) primary key,
-     name text, avatar_url text, role text default 'user',
-     created_at timestamptz default now()
-   );
-   alter table public.profiles enable row level security;
-   create policy "Users can view all profiles" on public.profiles for select using (true);
-   create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
-
-   -- Lists table
-   create table public.lists (
-     id uuid primary key default gen_random_uuid(),
-     owner_id uuid references auth.users(id) on delete cascade,
-     title text not null, description text, color text default '#C4622D',
-     privacy text default 'private', created_at timestamptz default now()
-   );
-   alter table public.lists enable row level security;
-   create policy "Owner full access" on public.lists for all using (auth.uid() = owner_id);
-   create policy "Read shared/public" on public.lists for select using (privacy in ('shared','public'));
-
-   -- Places table
-   create table public.places (
-     id uuid primary key default gen_random_uuid(),
-     list_id uuid references public.lists(id) on delete cascade,
-     added_by uuid references auth.users(id),
-     name text not null, address text, category text,
-     color1 text default '#8B7D6B', color2 text default '#B5A898',
-     emoji text default 'pin', visited boolean default false,
-     lat numeric, lng numeric,
-     place_id text,
-     maps_url text,
-     created_at timestamptz default now()
-   );
-   alter table public.places enable row level security;
-   create policy "List members access places" on public.places for all
-     using (list_id in (select id from public.lists where owner_id = auth.uid() or privacy in ('shared','public')));
-
-   -- Notes table
-   create table public.notes (
-     id uuid primary key default gen_random_uuid(),
-     place_id uuid references public.places(id) on delete cascade,
-     author_id uuid references auth.users(id),
-     author_name text, content text not null,
-     created_at timestamptz default now()
-   );
-   alter table public.notes enable row level security;
-   create policy "Notes readable by list members" on public.notes for select using (true);
-   create policy "Authenticated users can add notes" on public.notes for insert with check (auth.uid() = author_id);
-
-   -- List members table
-   create table public.list_members (
-     list_id uuid references public.lists(id) on delete cascade,
-     user_id uuid references auth.users(id) on delete cascade,
-     role text default 'viewer',
-     primary key (list_id, user_id)
-   );
-   alter table public.list_members enable row level security;
-   create policy "Members can view" on public.list_members for select using (true);
-   create policy "Owner can manage" on public.list_members for all
-     using (list_id in (select id from public.lists where owner_id = auth.uid()));
-
-   -- Auto-create profile on signup
-   create or replace function public.handle_new_user()
-   returns trigger as $$ begin
-     insert into public.profiles (id, name, avatar_url)
-     values (new.id, coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email,'@',1)), new.raw_user_meta_data->>'avatar_url');
-     return new;
-   end; $$ language plpgsql security definer;
-   create trigger on_auth_user_created after insert on auth.users
-     for each row execute procedure public.handle_new_user();
-
-   4. In Supabase Auth settings, enable Google OAuth and add your
-      Google Client ID and Secret (from console.cloud.google.com)
-   5. Add your site URL to Supabase Auth > URL Configuration > Site URL
-═══════════════════════════════════════════════════════ */
-
+// CONFIG
 var SUPABASE_URL  = 'https://doyforyhqdcpnuxcrxvr.supabase.co';
 var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRveWZvcnlocWRjcG51eGNyeHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjE5MzcsImV4cCI6MjA4OTQzNzkzN30.H4Q8gzdIr0YS47kNUPQUijZL1GoEVnA-CJr3PmKiF8U';
-
-/* ─── Deployed to: https://waleedju88.github.io/wanderlist ───
-   Google Maps / Places API Key ───────────────────────────
-   Get a free key at: https://console.cloud.google.com
-   → APIs & Services → Credentials → Create API Key
-   Enable these two APIs in your project:
-     1. Maps JavaScript API
-     2. Places API
-   Then restrict the key to your Netlify / GitHub Pages domain.
-──────────────────────────────────────────────────────────── */
 var GOOGLE_MAPS_KEY = 'AIzaSyBVdBl6PrgOFLV_0s6VDczdHrS_KUyeNdc';
+var BASE_URL = 'https://waleedju88.github.io/wanderlist';
 
-/* ── APP STATE ── */
-var isConfigured = (
-  SUPABASE_URL !== '' &&
-  SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
-  SUPABASE_URL.indexOf('supabase.co') !== -1
-);
+// INIT — same as test.html
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-var sb = null;
-try {
-  if(isConfigured && typeof supabase !== 'undefined'){
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-  }
-} catch(e){ console.warn('Supabase init:', e); isConfigured = false; }
+// STATE
+var currentUser=null,currentProfile=null,currentListId=null,currentPlace=null,selectedPlace=null,curPriv='p',dkCollapsed=false,confirmCb=null;
+var placesService=null,autocompleteService=null,searchTimer=null;
+var EMOJIS={shrine:'&#9961;&#65039;',sushi:'&#127843;',bamboo:'&#127179;',crossing:'&#128678;',temple:'&#127983;',food:'&#129406;',pin:'&#128205;'};
 
-
-
-/* ─── detect configured ─── */
-var isConfigured = (
-  SUPABASE_URL !== '' &&
-  SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
-  SUPABASE_URL.indexOf('supabase.co') !== -1
-);
-
-/* ─── init supabase safely ─── */
-var sb = null;
-try {
-  if(isConfigured && typeof supabase !== 'undefined'){
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-  }
-} catch(e){
-  console.warn('Supabase init failed:', e);
-  isConfigured = false;
+// PAGE SWITCH — simple like test.html
+function showPage(name){
+  var lp=document.getElementById('page-login');
+  var ap=document.getElementById('page-app');
+  if(name==='login'){lp.style.display='flex';ap.style.display='none';}
+  else{lp.style.display='none';ap.style.display='flex';ap.style.height='100vh';ap.style.overflow='hidden';}
 }
 
-/* ─── app state ─── */
-var currentUser   = null;
-var selectedPlace = null;  // holds Google Places result
-var currentProfile= null;
-var currentListId = null;
-var currentPlace  = null;
-var curPriv       = 'p';
-var dkCollapsed   = false;
-
-/* ═══════════════════════════════════════
-   DEMO MODE (when Supabase not configured)
-═══════════════════════════════════════ */
-var DEMO_LISTS = [
-  {id:'d1',title:'Japan Trip 2025',color:'#C4622D',privacy:'shared',owner_id:'demo'},
-  {id:'d2',title:'Secret Spots',color:'#8B7D6B',privacy:'private',owner_id:'demo'},
-];
-var DEMO_PLACES = {
-  d1:[
-    {id:'p1',list_id:'d1',name:'Fushimi Inari Taisha',address:'Fushimi Ward, Kyoto',category:'Culture',color1:'#C4622D',color2:'#E8895A',emoji:'shrine',visited:true},
-    {id:'p2',list_id:'d1',name:'Tsukiji Outer Market',address:'Chuo, Tokyo',category:'Food',color1:'#2D6B8C',color2:'#5A9BBF',emoji:'sushi',visited:false},
-    {id:'p3',list_id:'d1',name:'Arashiyama Bamboo Grove',address:'Ukyo, Kyoto',category:'Nature',color1:'#4A7C59',color2:'#7EAF8E',emoji:'bamboo',visited:false},
-  ],
-  d2:[]
-};
-var DEMO_NOTES = {p1:['Alex: Go at 5am — bring a headlamp!'],p2:['Tom: Best tuna at stall 7'],p3:[]};
-
-var EMOJIS = {shrine:'&#9961;&#65039;',sushi:'&#127843;',bamboo:'&#127179;',crossing:'&#128678;',temple:'&#127983;',food:'&#129406;',pin:'&#128205;'};
-var DEMO_USER = {id:'demo',email:'demo@wanderlist.app',name:'Demo User',role:'admin',avatar:null};
-
-/* ═══════════════════════════════════════
-   AUTH
-═══════════════════════════════════════ */
+// AUTH
 function showAuthTab(tab){
-  document.getElementById('tab-login').classList.toggle('on', tab==='login');
-  document.getElementById('tab-signup').classList.toggle('on', tab==='signup');
-  document.getElementById('form-login').style.display  = tab==='login'  ? 'block' : 'none';
-  document.getElementById('form-signup').style.display = tab==='signup' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('on',tab==='login');
+  document.getElementById('tab-signup').classList.toggle('on',tab==='signup');
+  document.getElementById('form-login').style.display=tab==='login'?'block':'none';
+  document.getElementById('form-signup').style.display=tab==='signup'?'block':'none';
   document.getElementById('auth-err').classList.remove('show');
 }
-
-function showAuthErr(msg){
-  var el = document.getElementById('auth-err');
-  el.textContent = msg; el.classList.add('show');
+function showAuthErr(msg,color){
+  var el=document.getElementById('auth-err');
+  el.textContent=msg;el.style.color=color||'#ff8a80';el.classList.add('show');
 }
-
 async function signInEmail(){
-  var email = document.getElementById('login-email').value.trim();
-  var pass  = document.getElementById('login-password').value;
-  if(!email||!pass){ showAuthErr('Please enter email and password'); return; }
-  if(!isConfigured){ enterDemoMode(); return; }
-  var res = await sb.auth.signInWithPassword({email,password:pass});
-  if(res.error){ showAuthErr(res.error.message); return; }
+  var email=document.getElementById('login-email').value.trim();
+  var pass=document.getElementById('login-password').value;
+  if(!email||!pass){showAuthErr('Please enter email and password');return;}
+  showAuthErr('Signing in...','#aaa');
+  var res=await sb.auth.signInWithPassword({email:email,password:pass});
+  if(res.error){showAuthErr(res.error.message);return;}
   onSignedIn(res.data.user);
 }
-
 async function signUpEmail(){
-  var name  = document.getElementById('signup-name').value.trim();
-  var email = document.getElementById('signup-email').value.trim();
-  var pass  = document.getElementById('signup-password').value;
-  if(!name||!email||!pass){ showAuthErr('Please fill all fields'); return; }
-  if(pass.length < 6){ showAuthErr('Password must be at least 6 characters'); return; }
-  if(!isConfigured){ enterDemoMode(); return; }
-  var res = await sb.auth.signUp({email, password:pass, options:{data:{full_name:name}}});
-  if(res.error){ showAuthErr(res.error.message); return; }
-  toast('Check your email to confirm your account!');
+  var name=document.getElementById('signup-name').value.trim();
+  var email=document.getElementById('signup-email').value.trim();
+  var pass=document.getElementById('signup-password').value;
+  if(!name||!email||!pass){showAuthErr('Please fill all fields');return;}
+  if(pass.length<6){showAuthErr('Password must be at least 6 characters');return;}
+  showAuthErr('Creating account...','#aaa');
+  var res=await sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name}}});
+  if(res.error){showAuthErr(res.error.message);return;}
+  if(res.data&&res.data.user&&res.data.user.confirmed_at){onSignedIn(res.data.user);}
+  else{showAuthErr('Account created! Check your email or sign in.','#7EAF8E');}
 }
-
 async function signInGoogle(){
-  if(!isConfigured){ enterDemoMode(); return; }
-  var res = await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: 'https://waleedju88.github.io/wanderlist/'}});
-  if(res.error) showAuthErr(res.error.message);
+  var res=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:BASE_URL+'/'}});
+  if(res.error)showAuthErr(res.error.message);
 }
-
-async function signOut(){
-  if(isConfigured) await sb.auth.signOut();
-  currentUser = null; currentProfile = null;
-  showPage('login');
-}
-
+async function signOut(){await sb.auth.signOut();currentUser=null;currentProfile=null;showPage('login');}
 function showForgot(){
-  var email = document.getElementById('login-email').value.trim();
-  if(!email){ showAuthErr('Enter your email above first'); return; }
-  if(!isConfigured){ toast('Reset email sent (demo mode)'); return; }
-  sb.auth.resetPasswordForEmail(email, {redirectTo: 'https://waleedju88.github.io/wanderlist/'}).then(function(){
-    toast('Password reset email sent!');
-  });
+  var email=document.getElementById('login-email').value.trim();
+  if(!email){showAuthErr('Enter your email above first');return;}
+  sb.auth.resetPasswordForEmail(email,{redirectTo:BASE_URL+'/'}).then(function(){showAuthErr('Password reset email sent!','#7EAF8E');});
 }
 
-function enterDemoMode(){
-  currentUser    = DEMO_USER;
-  currentProfile = DEMO_USER;
-  showPage('app');
-  initApp();
-}
-
+// SIGNED IN
 async function onSignedIn(user){
-  currentUser = user;
-  var {data:profile} = await sb.from('profiles').select('*').eq('id',user.id).single();
-  currentProfile = profile || {id:user.id, name:user.email, role:'user'};
+  currentUser=user;
+  try{var r=await sb.from('profiles').select('*').eq('id',user.id).single();currentProfile=r.data||{id:user.id,name:user.email,role:'user'};}
+  catch(e){currentProfile={id:user.id,name:user.email,role:'user'};}
   showPage('app');
-  initApp();
-}
-
-/* ═══════════════════════════════════════
-   PAGE ROUTING
-═══════════════════════════════════════ */
-function showPage(name){
-  // Hide all pages
-  document.querySelectorAll('.page').forEach(function(p){
-    p.classList.remove('active');
-  });
-  // Also handle the login page default-visible state
-  var loginPage = document.getElementById('page-login');
-  if(loginPage) loginPage.classList.add('hidden-by-js');
-
-  // Show the requested page
-  var target = document.getElementById('page-'+name);
-  if(target){
-    target.classList.add('active');
-    // If showing login, remove the hidden class
-    if(name === 'login'){
-      target.classList.remove('hidden-by-js');
-    }
-  }
-}
-
-/* ═══════════════════════════════════════
-   APP INIT
-═══════════════════════════════════════ */
-function initApp(){
-  // Set user info in sidebar
-  var name = (currentProfile && currentProfile.name) || currentUser.email;
-  var role = (currentProfile && currentProfile.role) || 'user';
-  document.getElementById('sb-name').textContent = name;
-  document.getElementById('sb-role').textContent = role === 'admin' ? '&#9733; Admin' : 'User';
-  var av = document.getElementById('sb-avatar');
-  var avatarUrl = currentProfile && currentProfile.avatar_url;
-  if(avatarUrl){
-    av.innerHTML = '<img src="' + avatarUrl + '" alt="">';
-  } else {
-    av.textContent = name[0].toUpperCase();
-  }
+  var name=(currentProfile&&currentProfile.name)||user.email;
+  var role=(currentProfile&&currentProfile.role)||'user';
+  document.getElementById('sb-name').textContent=name;
+  document.getElementById('sb-role').textContent=role==='admin'?'★ Admin':'User';
+  var av=document.getElementById('sb-avatar');
+  var avatarUrl=currentProfile&&currentProfile.avatar_url;
+  if(avatarUrl){av.innerHTML='<img src="'+avatarUrl+'" alt="">';}else{av.textContent=name[0].toUpperCase();}
   loadLists();
-}
-
-/* ═══════════════════════════════════════
-   LOAD LISTS
-═══════════════════════════════════════ */
-async function loadLists(){
-  var lists;
-  if(!isConfigured){
-    lists = DEMO_LISTS;
-  } else {
-    var uid = currentUser.id;
-    var {data, error} = await sb.from('lists')
-      .select('*')
-      .or('owner_id.eq.' + uid + ',privacy.in.(shared,public)')
-      .order('created_at');
-    if(error){ toast('Error loading lists'); return; }
-    lists = data || [];
+  if(GOOGLE_MAPS_KEY&&GOOGLE_MAPS_KEY!=='YOUR_GOOGLE_MAPS_API_KEY'){
+    var s=document.createElement('script');
+    s.src='https://maps.googleapis.com/maps/api/js?key='+GOOGLE_MAPS_KEY+'&libraries=places&callback=initGooglePlaces';
+    s.async=true;s.defer=true;document.head.appendChild(s);
   }
+}
+
+// LISTS
+async function loadLists(){
+  document.getElementById('main-content').innerHTML='<div class="spinner"></div>';
+  var uid=currentUser.id;
+  var{data,error}=await sb.from('lists').select('*').or('owner_id.eq.'+uid+',privacy.in.(shared,public)').order('created_at');
+  var lists=(error?[]:data)||[];
   buildSidebar(lists);
-  if(lists.length > 0) selectList(lists[0]);
-  else renderEmpty();
+  if(lists.length>0)selectList(lists[0]);else renderEmpty();
 }
-
 function buildSidebar(lists){
-  var secMy   = document.getElementById('sec-my');
-  var secPriv = document.getElementById('sec-priv');
-  secMy.querySelectorAll('.li').forEach(function(e){ e.remove(); });
-  secPriv.querySelectorAll('.li').forEach(function(e){ e.remove(); });
-
+  var secMy=document.getElementById('sec-my');
+  var secPriv=document.getElementById('sec-priv');
+  secMy.querySelectorAll('.li').forEach(function(e){e.remove();});
+  secPriv.querySelectorAll('.li').forEach(function(e){e.remove();});
   lists.forEach(function(list){
-    var isOwn = list.owner_id === (currentUser && currentUser.id);
-    var sec = (list.privacy === 'private' && isOwn) ? secPriv : secMy;
-    var item = makeSidebarItem(list);
-    sec.appendChild(item);
+    var isOwn=list.owner_id===currentUser.id;
+    var isPrivate=list.privacy==='private';
+    var sec=(isPrivate&&isOwn)?secPriv:secMy;
+    sec.appendChild(makeSidebarItem(list));
   });
 }
-
 function makeSidebarItem(list){
-  var item = document.createElement('div');
-  item.className = 'li';
-  item.setAttribute('data-id', list.id);
-  var isPrivate = list.privacy === 'private';
-  item.innerHTML =
-    '<div class="li-dot" style="background:' + (list.color||'#C4622D') + '"></div>' +
-    '<span class="li-name">' + list.title + '</span>' +
-    (isPrivate ? '<span class="li-lock">&#128274;</span>' : '<span class="li-count">0</span>') +
-    '<button class="li-del" title="Delete list">&#10005;</button>';
-  item.addEventListener('click', function(){ selectList(list); });
-  item.querySelector('.li-del').addEventListener('click', function(e){
-    e.stopPropagation(); askDeleteList(list);
-  });
+  var item=document.createElement('div');
+  item.className='li';item.setAttribute('data-id',list.id);
+  var isPrivate=list.privacy==='private';
+  item.innerHTML='<div class="li-dot" style="background:'+(list.color||'#C4622D')+'"></div>'+
+    '<span class="li-name">'+list.title+'</span>'+
+    (isPrivate?'<span class="li-lock">&#128274;</span>':'<span class="li-count">0</span>')+
+    '<button class="li-del" title="Delete">&#10005;</button>';
+  item.addEventListener('click',function(){selectList(list);});
+  item.querySelector('.li-del').addEventListener('click',function(e){e.stopPropagation();askDeleteList(list);});
   return item;
 }
-
 function selectList(list){
-  currentListId = list.id;
-  document.getElementById('listtitle').textContent = list.title;
-  var badgeEl = document.getElementById('listbadge');
-  var bmap = {private:{t:'Private',c:'bp'}, shared:{t:'Shared',c:'bs'}, public:{t:'Public',c:'bpub'}};
-  var bm = bmap[list.privacy] || bmap['shared'];
-  badgeEl.textContent = bm.t; badgeEl.className = 'badge ' + bm.c;
-  document.querySelectorAll('.li').forEach(function(i){ i.classList.remove('active'); });
-  var activeItem = document.querySelector('.li[data-id="' + list.id + '"]');
-  if(activeItem) activeItem.classList.add('active');
+  currentListId=list.id;
+  document.getElementById('listtitle').textContent=list.title;
+  var b=document.getElementById('listbadge');
+  var bmap={private:{t:'Private',c:'bp'},shared:{t:'Shared',c:'bs'},public:{t:'Public',c:'bpub'}};
+  var bm=bmap[list.privacy]||bmap['shared'];
+  b.textContent=bm.t;b.className='badge '+bm.c;
+  document.querySelectorAll('.li').forEach(function(i){i.classList.remove('active');});
+  var el=document.querySelector('.li[data-id="'+list.id+'"]');
+  if(el)el.classList.add('active');
   loadPlaces(list.id);
-  if(isMob()) closeMobile();
+  if(isMob())closeMobile();
 }
 
-/* ═══════════════════════════════════════
-   LOAD + RENDER PLACES
-═══════════════════════════════════════ */
+// PLACES
 async function loadPlaces(listId){
-  document.getElementById('main-content').innerHTML = '<div class="spinner"></div>';
-  var places, notes = {};
-  if(!isConfigured){
-    places = DEMO_PLACES[listId] || [];
-    notes  = DEMO_NOTES;
-  } else {
-    var {data:pl} = await sb.from('places').select('*').eq('list_id',listId).order('created_at');
-    places = pl || [];
-    if(places.length){
-      var ids = places.map(function(p){ return p.id; });
-      var {data:nl} = await sb.from('notes').select('*').in('place_id',ids).order('created_at');
-      (nl||[]).forEach(function(n){
-        if(!notes[n.place_id]) notes[n.place_id] = [];
-        notes[n.place_id].push(n);
-      });
-    }
+  document.getElementById('main-content').innerHTML='<div class="spinner"></div>';
+  var{data:places}=await sb.from('places').select('*').eq('list_id',listId).order('created_at');
+  places=places||[];
+  var notes={};
+  if(places.length){
+    var ids=places.map(function(p){return p.id;});
+    var{data:nl}=await sb.from('notes').select('*').in('place_id',ids).order('created_at');
+    (nl||[]).forEach(function(n){if(!notes[n.place_id])notes[n.place_id]=[];notes[n.place_id].push(n);});
   }
-  renderPlaces(places, notes);
+  renderPlaces(places,notes);
 }
-
-function renderPlaces(places, notes){
-  var cnt = document.getElementById('main-content');
-  cnt.innerHTML = '';
-
-  // Map strip
-  var ms = document.createElement('div');
-  ms.className = 'mapstrip';
-  ms.onclick = openMapView;
-  ms.innerHTML =
-    '<div class="mapbg"><svg viewBox="0 0 900 220" preserveAspectRatio="xMidYMid slice">' +
-    '<rect width="900" height="220" fill="#E8E0D0"/>' +
-    '<path d="M0,80 Q200,60 400,90 Q600,120 900,80" stroke="#D4C9B0" stroke-width="20" fill="none"/>' +
-    '<path d="M0,140 Q150,130 300,150 Q500,170 700,140 L900,150" stroke="#D4C9B0" stroke-width="14" fill="none"/>' +
-    '<rect x="80" y="30" width="60" height="40" rx="4" fill="#C8BDAA"/>' +
-    '<rect x="320" y="50" width="80" height="55" rx="4" fill="#C8BDAA"/>' +
-    '<rect x="650" y="60" width="70" height="50" rx="4" fill="#C8BDAA"/>' +
-    '</svg></div>' +
-    '<div class="pin" style="left:22%;top:52%">&#128205;</div>' +
-    '<div class="pin" style="left:48%;top:38%;animation-delay:.15s">&#128205;</div>' +
-    '<div class="pin" style="left:74%;top:58%;animation-delay:.3s">&#128205;</div>' +
-    '<div class="mapoverlay">' +
-    '<button class="mapbtn">&#128506; Open in Google Maps</button>' +
-    '<span class="mcount">' + places.length + ' places</span>' +
-    '</div>';
-  cnt.appendChild(ms);
-
-  // Stats bar
-  var vis = places.filter(function(p){ return p.visited; }).length;
-  var sh  = document.createElement('div');
-  sh.className = 'sec-hdr';
-  sh.innerHTML =
-    '<div><div class="sec-ttl">Places to Visit</div><div class="sec-sub">' + places.length + ' places &middot; ' + vis + ' visited</div></div>' +
-    '<select class="fsel" style="width:auto;padding:6px 10px;font-size:12px"><option>All categories</option><option>Food</option><option>Culture</option><option>Nature</option><option>Shopping</option></select>';
+function renderPlaces(places,notes){
+  var cnt=document.getElementById('main-content');cnt.innerHTML='';
+  var ms=document.createElement('div');ms.className='mapstrip';
+  ms.innerHTML='<div class="mapbg"><svg viewBox="0 0 900 220" preserveAspectRatio="xMidYMid slice"><rect width="900" height="220" fill="#E8E0D0"/><path d="M0,80 Q200,60 400,90 Q600,120 900,80" stroke="#D4C9B0" stroke-width="20" fill="none"/><path d="M0,140 Q150,130 300,150 Q500,170 700,140 L900,150" stroke="#D4C9B0" stroke-width="14" fill="none"/><rect x="80" y="30" width="60" height="40" rx="4" fill="#C8BDAA"/><rect x="320" y="50" width="80" height="55" rx="4" fill="#C8BDAA"/><rect x="650" y="60" width="70" height="50" rx="4" fill="#C8BDAA"/></svg></div>'+
+    '<div class="pin" style="left:22%;top:52%">&#128205;</div>'+
+    '<div class="pin" style="left:48%;top:38%;animation-delay:.15s">&#128205;</div>'+
+    '<div class="pin" style="left:74%;top:58%;animation-delay:.3s">&#128205;</div>'+
+    '<div class="mapoverlay"><button class="mapbtn">&#128506; Open in Google Maps</button><span class="mcount">'+places.length+' places</span></div>';
+  ms.addEventListener('click',openMapView);cnt.appendChild(ms);
+  var vis=places.filter(function(p){return p.visited;}).length;
+  var sh=document.createElement('div');sh.className='sec-hdr';
+  sh.innerHTML='<div><div class="sec-ttl">Places to Visit</div><div class="sec-sub">'+places.length+' places &middot; '+vis+' visited</div></div>';
   cnt.appendChild(sh);
-
-  // Update sidebar count
-  var sideItem = document.querySelector('.li[data-id="' + currentListId + '"]');
-  if(sideItem){ var cc = sideItem.querySelector('.li-count'); if(cc) cc.textContent = places.length; }
-
-  // Grid
-  var grid = document.createElement('div');
-  grid.className = 'grid';
-
-  places.forEach(function(p, i){
-    var placeNotes = notes[p.id] || [];
-    var noteFirst = isConfigured ? (placeNotes[0] && placeNotes[0].author_name + ': ' + placeNotes[0].content) : placeNotes[0];
-    var emoji = EMOJIS[p.emoji] || EMOJIS['pin'];
-    var noteH = noteFirst ? '<div class="pcard-note">' + noteFirst + '</div>' : '';
-    var visH  = p.visited ? '<div class="pcard-vis">Visited</div>' : '';
-
-    var card = document.createElement('div');
-    card.className = 'pcard';
-    card.style.animationDelay = (i * 0.06) + 's';
-    card.innerHTML =
-      '<div class="pcard-img" style="background:linear-gradient(135deg,' + p.color1 + ',' + p.color2 + ')">' +
-        '<div class="pcard-emoji">' + emoji + '</div>' +
-        '<div class="pcard-cat">' + p.category + '</div>' + visH +
-      '</div>' +
-      '<div class="pcard-body">' +
-        '<div class="pcard-name">' + p.name + '</div>' +
-        '<div class="pcard-addr">' + (p.address||'') + '</div>' +
-        noteH +
-        '<div class="pcard-ft"><div class="pcard-contribs"></div>' +
-        '<div class="pcard-acts">' +
-          '<button class="ibtn nav" title="Navigate">&#129517;</button>' +
-          '<button class="ibtn del" title="Remove">&#128465;&#65039;</button>' +
-        '</div></div>' +
-      '</div>';
-
-    card.querySelector('.ibtn.nav').addEventListener('click', function(e){ e.stopPropagation(); navTo(p.name + ' ' + (p.address||''), p.maps_url); });
-    card.querySelector('.ibtn.del').addEventListener('click', function(e){ e.stopPropagation(); askDeletePlace(p); });
-    card.addEventListener('click', function(){ openDetail(p, placeNotes); });
+  var sideItem=document.querySelector('.li[data-id="'+currentListId+'"]');
+  if(sideItem){var cc=sideItem.querySelector('.li-count');if(cc)cc.textContent=places.length;}
+  var grid=document.createElement('div');grid.className='grid';
+  places.forEach(function(p,i){
+    var placeNotes=notes[p.id]||[];
+    var noteFirst=placeNotes[0]?(placeNotes[0].author_name+': '+placeNotes[0].content):'';
+    var emoji=EMOJIS[p.emoji]||EMOJIS['pin'];
+    var noteH=noteFirst?'<div class="pcard-note">'+noteFirst+'</div>':'';
+    var visH=p.visited?'<div class="pcard-vis">Visited</div>':'';
+    var card=document.createElement('div');card.className='pcard';card.style.animationDelay=(i*.06)+'s';
+    card.innerHTML='<div class="pcard-img" style="background:linear-gradient(135deg,'+(p.color1||'#8B7D6B')+','+(p.color2||'#B5A898')+')">'+
+      '<div class="pcard-emoji">'+emoji+'</div><div class="pcard-cat">'+(p.category||'Place')+'</div>'+visH+'</div>'+
+      '<div class="pcard-body"><div class="pcard-name">'+p.name+'</div><div class="pcard-addr">'+(p.address||'')+'</div>'+noteH+
+      '<div class="pcard-ft"><div class="pcard-contribs"></div><div class="pcard-acts">'+
+      '<button class="ibtn nav" title="Navigate">&#129517;</button>'+
+      '<button class="ibtn del" title="Remove">&#128465;&#65039;</button></div></div></div>';
+    card.querySelector('.ibtn.nav').addEventListener('click',function(e){e.stopPropagation();navTo(p.name+' '+(p.address||''),p.maps_url);});
+    card.querySelector('.ibtn.del').addEventListener('click',function(e){e.stopPropagation();askDeletePlace(p);});
+    card.addEventListener('click',function(){openDetail(p,placeNotes);});
     grid.appendChild(card);
   });
-
-  // Add card
-  var add = document.createElement('div');
-  add.className = 'addcard';
-  add.innerHTML = '<div class="addcard-icon">&#43;</div><div class="addcard-txt">Add a place</div>';
-  add.onclick = function(){ openM('addplace'); };
-  grid.appendChild(add);
-
-  cnt.appendChild(grid);
+  var add=document.createElement('div');add.className='addcard';
+  add.innerHTML='<div style="font-size:22px">&#43;</div><div style="font-size:13px;font-weight:600">Add a place</div>';
+  add.addEventListener('click',function(){openM('addplace');});
+  grid.appendChild(add);cnt.appendChild(grid);
 }
-
 function renderEmpty(){
-  document.getElementById('main-content').innerHTML =
-    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center">' +
-    '<div style="font-size:48px;opacity:.4;margin-bottom:16px">&#128205;</div>' +
-    '<div style="font-family:\'Playfair Display\',serif;font-size:18px;font-weight:700;margin-bottom:8px">No lists yet</div>' +
-    '<div style="font-size:13px;color:var(--muted);margin-bottom:20px">Create your first travel list to get started</div>' +
-    '<button class="btn btn-p" onclick="openM(\'newlist\')">&#43; Create List</button></div>';
+  document.getElementById('main-content').innerHTML=
+    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;background:#F5EFE0;">'+
+    '<div style="font-size:48px;opacity:.4;margin-bottom:16px">&#128205;</div>'+
+    '<div style="font-family:\'Playfair Display\',serif;font-size:18px;font-weight:700;margin-bottom:8px;color:#1A1410">No lists yet</div>'+
+    '<div style="font-size:13px;color:#8B7D6B;margin-bottom:20px">Create your first travel list</div>'+
+    '<button class="btn btn-p" id="btn-empty-new">&#43; Create List</button></div>';
+  document.getElementById('btn-empty-new').addEventListener('click',function(){openM('newlist');});
 }
 
-/* ═══════════════════════════════════════
-   PLACE DETAIL
-═══════════════════════════════════════ */
-function openDetail(p, placeNotes){
-  currentPlace = p;
-  document.getElementById('det-title').textContent = p.name;
-  document.getElementById('det-addr').textContent  = p.address || '';
-  var img = document.getElementById('det-img');
-  img.innerHTML = EMOJIS[p.emoji] || EMOJIS['pin'];
-  img.style.background = 'linear-gradient(135deg,' + p.color1 + ',' + p.color2 + ')';
-  var nl = document.getElementById('det-notes');
-  var allNotes = placeNotes || [];
-  if(allNotes.length){
-    nl.innerHTML = allNotes.map(function(n){
-      var auth = isConfigured ? n.author_name : n.split(':')[0];
-      var txt  = isConfigured ? n.content     : n.split(':').slice(1).join(':').trim();
-      return '<div class="note"><div class="note-auth">' + auth + '</div><div class="note-txt">' + txt + '</div></div>';
-    }).join('');
-  } else {
-    nl.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:6px 0">No notes yet. Be the first!</div>';
-  }
+// DETAIL
+function openDetail(p,placeNotes){
+  currentPlace=p;
+  document.getElementById('det-title').textContent=p.name;
+  document.getElementById('det-addr').textContent=p.address||'';
+  var img=document.getElementById('det-img');
+  img.innerHTML=EMOJIS[p.emoji]||EMOJIS['pin'];
+  img.style.background='linear-gradient(135deg,'+(p.color1||'#8B7D6B')+','+(p.color2||'#B5A898')+')';
+  var nl=document.getElementById('det-notes');
+  var all=placeNotes||[];
+  nl.innerHTML=all.length?all.map(function(n){return'<div class="note"><div class="note-auth">'+n.author_name+'</div><div class="note-txt">'+n.content+'</div></div>';}).join(''):'<div style="color:#8B7D6B;font-size:13px;padding:6px 0">No notes yet. Be the first!</div>';
   openM('detail');
 }
-
 async function addNote(){
-  var inp = document.getElementById('note-input');
-  var v = inp.value.trim();
-  if(!v || !currentPlace) return;
-  var authorName = (currentProfile && currentProfile.name) || 'You';
-
-  if(isConfigured){
-    var {error} = await sb.from('notes').insert({
-      place_id: currentPlace.id,
-      author_id: currentUser.id,
-      author_name: authorName,
-      content: v
-    });
-    if(error){ toast('Error adding note'); return; }
-  } else {
-    if(!DEMO_NOTES[currentPlace.id]) DEMO_NOTES[currentPlace.id] = [];
-    DEMO_NOTES[currentPlace.id].push(authorName + ': ' + v);
-  }
-  document.getElementById('det-notes').insertAdjacentHTML('beforeend',
-    '<div class="note" style="animation:fu .3s ease both"><div class="note-auth">' + authorName + '</div><div class="note-txt">' + v + '</div></div>');
-  inp.value = '';
-  toast('Note added');
+  var inp=document.getElementById('note-input');var v=inp.value.trim();
+  if(!v||!currentPlace)return;
+  var authorName=(currentProfile&&currentProfile.name)||'You';
+  await sb.from('notes').insert({place_id:currentPlace.id,author_id:currentUser.id,author_name:authorName,content:v});
+  document.getElementById('det-notes').insertAdjacentHTML('beforeend','<div class="note"><div class="note-auth">'+authorName+'</div><div class="note-txt">'+v+'</div></div>');
+  inp.value='';toast('Note added');
 }
-
 async function markVisited(){
-  if(!currentPlace) return;
-  if(isConfigured){
-    await sb.from('places').update({visited:true}).eq('id', currentPlace.id);
-  } else {
-    currentPlace.visited = true;
-  }
-  closeM('detail');
-  loadPlaces(currentListId);
-  toast('Marked as visited!');
+  if(!currentPlace)return;
+  await sb.from('places').update({visited:true}).eq('id',currentPlace.id);
+  closeM('detail');loadPlaces(currentListId);toast('Marked as visited!');
 }
 
-/* ═══════════════════════════════════════
-   CREATE LIST
-═══════════════════════════════════════ */
+// CREATE LIST
 async function createList(){
-  var nameEl = document.getElementById('nl-name');
-  var n = nameEl ? nameEl.value.trim() : '';
-  if(!n){ toast('Please enter a list name'); return; }
-  var swatchEl = document.querySelector('#nl-swatches .swatch.on');
-  var color = swatchEl ? swatchEl.style.background : '#C4622D';
-  var privMap = {p:'private', s:'shared', pub:'public'};
-  var privacy = privMap[curPriv] || 'private';
-
-  var newList;
-  if(isConfigured){
-    var {data,error} = await sb.from('lists').insert({
-      owner_id: currentUser.id,
-      title: n,
-      description: document.getElementById('nl-desc').value.trim(),
-      color: color,
-      privacy: privacy
-    }).select().single();
-    if(error){ toast('Error creating list'); return; }
-    newList = data;
-  } else {
-    newList = {id:'d_'+Date.now(), title:n, color:color, privacy:privacy, owner_id:'demo'};
-    DEMO_LISTS.push(newList);
-    DEMO_PLACES[newList.id] = [];
-  }
-
-  var item = makeSidebarItem(newList);
-  var secId = privacy === 'private' ? 'sec-priv' : 'sec-my';
-  document.getElementById(secId).appendChild(item);
-
-  if(nameEl) nameEl.value = '';
-  var descEl = document.getElementById('nl-desc');
-  if(descEl) descEl.value = '';
-  closeM('newlist');
-  selectList(newList);
-  toast('"' + n + '" created!');
+  var n=document.getElementById('nl-name').value.trim();
+  if(!n){toast('Please enter a list name');return;}
+  var swatchEl=document.querySelector('#nl-swatches .swatch.on');
+  var color=swatchEl?swatchEl.style.background:'#C4622D';
+  var privMap={p:'private',s:'shared',pub:'public'};
+  var privacy=privMap[curPriv]||'private';
+  var{data,error}=await sb.from('lists').insert({owner_id:currentUser.id,title:n,description:document.getElementById('nl-desc').value.trim(),color:color,privacy:privacy}).select().single();
+  if(error){toast('Error: '+error.message);return;}
+  var item=makeSidebarItem(data);
+  document.getElementById(privacy==='private'?'sec-priv':'sec-my').appendChild(item);
+  document.getElementById('nl-name').value='';document.getElementById('nl-desc').value='';
+  closeM('newlist');selectList(data);toast('"'+n+'" created!');
 }
 
-/* ═══════════════════════════════════════
-   ADD PLACE
-═══════════════════════════════════════ */
-/* ═══════════════════════════════════════
-   GOOGLE PLACES SEARCH
-═══════════════════════════════════════ */
-var placesService      = null;
-var autocompleteService= null;
-var searchTimer        = null;
-var focusedSuggestion  = -1;
-
-// Dynamically load Google Maps only when a real key is provided
-(function loadGoogleMapsIfConfigured(){
-  if(!GOOGLE_MAPS_KEY || GOOGLE_MAPS_KEY === '') {
-    console.info('Google Maps key not set - Places search will use fallback mode');
-    return;
-  }
-  var script = document.createElement('script');
-  script.src = 'https://maps.googleapis.com/maps/api/js?key=' +
-    GOOGLE_MAPS_KEY + '&libraries=places&callback=initGooglePlaces';
-  script.async = true;
-  script.defer = true;
-  script.onerror = function(){ console.warn('Google Maps failed to load'); };
-  document.head.appendChild(script);
-})();
-
-// Called by Google Maps script callback
-function initGooglePlaces(){
-  // We use AutocompleteService (no map needed) + PlacesService (needs a dummy div)
-  autocompleteService = new google.maps.places.AutocompleteService();
-  var dummyMap = new google.maps.Map(document.createElement('div'));
-  placesService = new google.maps.places.PlacesService(dummyMap);
-  console.log('Google Places ready');
-}
-
-// Trigger search as user types (debounced 350ms)
-function onPlacesSearchInput(){
-  var input = document.getElementById('ap-search');
-  var val   = input.value.trim();
-  var clearBtn = document.getElementById('ap-clear');
-
-  clearBtn.style.display = val ? 'flex' : 'none';
-
-  clearTimeout(searchTimer);
-  if(!val){ closePlacesDropdown(); return; }
-
-  showPlacesLoading();
-  searchTimer = setTimeout(function(){ searchPlaces(val); }, 350);
-}
-
-function searchPlaces(query){
-  if(!autocompleteService){
-    // Fallback if Google Maps not yet loaded or no API key
-    showNoResults('Google Maps not available. Check your API key.');
-    return;
-  }
-  autocompleteService.getPlacePredictions(
-    { input: query, types: [] },
-    function(predictions, status){
-      if(status !== google.maps.places.PlacesServiceStatus.OK || !predictions){
-        showNoResults('No places found for "' + query + '"');
-        return;
-      }
-      renderSuggestions(predictions);
-    }
-  );
-}
-
-var TYPE_EMOJI = {
-  restaurant:'&#127859;', food:'&#127859;', cafe:'&#9749;', bar:'&#127867;',
-  bakery:'&#129360;', meal_takeaway:'&#127839;',
-  tourist_attraction:'&#127981;', museum:'&#127963;', art_gallery:'&#127912;',
-  church:'&#9962;', mosque:'&#128332;', hindu_temple:'&#128334;',
-  park:'&#127807;', natural_feature:'&#127956;', campground:'&#26978;',
-  lodging:'&#127968;', hotel:'&#127968;',
-  shopping_mall:'&#128717;', store:'&#128722;', supermarket:'&#128722;',
-  airport:'&#9992;', train_station:'&#128647;', subway_station:'&#128647;',
-  hospital:'&#127973;', pharmacy:'&#128138;',
-  default:'&#128205;'
-};
-
-function getTypeEmoji(types){
-  if(!types) return TYPE_EMOJI['default'];
-  for(var i=0; i<types.length; i++){
-    if(TYPE_EMOJI[types[i]]) return TYPE_EMOJI[types[i]];
-  }
-  return TYPE_EMOJI['default'];
-}
-
-function formatType(types){
-  if(!types || !types.length) return 'Place';
-  var skip = ['point_of_interest','establishment','political','locality','country'];
-  for(var i=0; i<types.length; i++){
-    if(skip.indexOf(types[i]) === -1){
-      return types[i].replace(/_/g,' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
-    }
-  }
-  return 'Place';
-}
-
-function renderSuggestions(predictions){
-  var dd = document.getElementById('places-dropdown');
-  dd.innerHTML = '';
-  focusedSuggestion = -1;
-
-  predictions.slice(0,6).forEach(function(pred, idx){
-    var row = document.createElement('div');
-    row.className = 'places-suggestion';
-    row.setAttribute('data-idx', idx);
-
-    var mainText = pred.structured_formatting.main_text;
-    var subText  = pred.structured_formatting.secondary_text || '';
-    var emoji    = getTypeEmoji(pred.types);
-
-    row.innerHTML =
-      '<div class="places-suggestion-icon">' + emoji + '</div>' +
-      '<div style="flex:1;min-width:0">' +
-        '<div class="places-suggestion-main">' + mainText + '</div>' +
-        '<div class="places-suggestion-sub">' + subText + '</div>' +
-      '</div>';
-
-    row.addEventListener('click', function(){ selectSuggestion(pred); });
-    dd.appendChild(row);
-  });
-
-  dd.classList.add('open');
-}
-
-function selectSuggestion(pred){
-  // Get full place details
-  var input = document.getElementById('ap-search');
-  input.value = pred.structured_formatting.main_text;
-  document.getElementById('ap-clear').style.display = 'flex';
-  closePlacesDropdown();
-  showPlacesLoading();
-
-  if(!placesService){ showPreviewFallback(pred); return; }
-
-  placesService.getDetails(
-    {
-      placeId: pred.place_id,
-      fields: ['name','formatted_address','geometry','photos','rating','user_ratings_total',
-               'types','website','url','price_level','opening_hours','international_phone_number']
-    },
-    function(place, status){
-      if(status !== google.maps.places.PlacesServiceStatus.OK){
-        showPreviewFallback(pred);
-        return;
-      }
-      showPlacePreview(place);
-    }
-  );
-}
-
-function showPlacePreview(place){
-  selectedPlace = place;
-
-  // Photo
-  var imgEl = document.getElementById('pp-img');
-  if(place.photos && place.photos.length){
-    var photoUrl = place.photos[0].getUrl({maxWidth:600, maxHeight:300});
-    imgEl.innerHTML = '<img src="' + photoUrl + '" alt="' + place.name + '" onerror="this.parentElement.innerHTML='<div class=place-preview-img-fallback>&#128205;</div>'">';
-  } else {
-    imgEl.innerHTML = '<div class="place-preview-img-fallback">&#128205;</div>';
-  }
-
-  // Name + address
-  document.getElementById('pp-name').textContent = place.name;
-  document.getElementById('pp-addr').textContent = place.formatted_address || '';
-
-  // Type
-  document.getElementById('pp-type').textContent = formatType(place.types);
-
-  // Rating
-  var ratingEl = document.getElementById('pp-rating');
-  if(place.rating){
-    var stars = '';
-    var full  = Math.floor(place.rating);
-    for(var i=0; i<full; i++) stars += '&#9733;';
-    if(place.rating % 1 >= 0.5) stars += '&#9734;';
-    ratingEl.innerHTML = '<span class="stars">' + stars + '</span> ' +
-      place.rating.toFixed(1) +
-      (place.user_ratings_total ? ' <span style="color:var(--muted);font-weight:400">(' + place.user_ratings_total.toLocaleString() + ')</span>' : '');
-  } else {
-    ratingEl.innerHTML = '';
-  }
-
-  // Google Maps link
-  var gmapsEl = document.getElementById('pp-gmaps');
-  gmapsEl.href = place.url || ('https://www.google.com/maps/place/?q=place_id:' + place.place_id);
-
-  // Show preview + extra fields
-  document.getElementById('place-preview').style.display = 'block';
-  document.getElementById('ap-extra').style.display = 'block';
-  document.getElementById('places-dropdown').classList.remove('open');
-
-  // Hide loading state
-  hidePlacesLoading();
-
-  // Enable submit
-  var btn = document.getElementById('ap-submit-btn');
-  btn.disabled = false;
-  btn.style.opacity = '1';
-  btn.style.cursor  = 'pointer';
-
-  // Auto-pick category from place type
-  autoPickCategory(place.types);
-}
-
-function showPreviewFallback(pred){
-  // Use what we have from autocomplete if getDetails fails
-  selectedPlace = {
-    name: pred.structured_formatting.main_text,
-    formatted_address: pred.structured_formatting.secondary_text || '',
-    types: pred.types || [],
-    url: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(pred.description),
-    geometry: null, photos: [], rating: null
-  };
-  document.getElementById('pp-img').innerHTML = '<div class="place-preview-img-fallback">&#128205;</div>';
-  document.getElementById('pp-name').textContent = selectedPlace.name;
-  document.getElementById('pp-addr').textContent = selectedPlace.formatted_address;
-  document.getElementById('pp-type').textContent = formatType(selectedPlace.types);
-  document.getElementById('pp-rating').innerHTML = '';
-  document.getElementById('pp-gmaps').href = selectedPlace.url;
-  document.getElementById('place-preview').style.display = 'block';
-  document.getElementById('ap-extra').style.display = 'block';
-  hidePlacesLoading();
-  var btn = document.getElementById('ap-submit-btn');
-  btn.disabled = false; btn.style.opacity='1'; btn.style.cursor='pointer';
-  autoPickCategory(selectedPlace.types);
-}
-
-function autoPickCategory(types){
-  if(!types) return;
-  var sel = document.getElementById('ap-cat');
-  var foodTypes    = ['restaurant','food','cafe','bar','bakery','meal_takeaway','meal_delivery'];
-  var cultureTypes = ['museum','art_gallery','tourist_attraction','church','mosque','hindu_temple','amusement_park','stadium'];
-  var natureTypes  = ['park','natural_feature','campground','zoo','aquarium'];
-  var shopTypes    = ['shopping_mall','store','clothing_store','supermarket','department_store'];
-  var stayTypes    = ['lodging','hotel','campground'];
-
-  for(var i=0;i<types.length;i++){
-    if(foodTypes.indexOf(types[i])   !== -1){ sel.value='Food and Drink'; return; }
-    if(cultureTypes.indexOf(types[i])!== -1){ sel.value='Culture and Sights'; return; }
-    if(natureTypes.indexOf(types[i]) !== -1){ sel.value='Nature and Parks'; return; }
-    if(shopTypes.indexOf(types[i])   !== -1){ sel.value='Shopping'; return; }
-    if(stayTypes.indexOf(types[i])   !== -1){ sel.value='Accommodation'; return; }
-  }
-}
-
-function showPlacesLoading(){
-  var dd = document.getElementById('places-dropdown');
-  dd.innerHTML =
-    '<div class="places-loading">' +
-    '<div class="places-loading-dot"></div>' +
-    '<div class="places-loading-dot"></div>' +
-    '<div class="places-loading-dot"></div>' +
-    '<span style="margin-left:4px;font-size:12px">Searching...</span>' +
-    '</div>';
-  dd.classList.add('open');
-}
-function hidePlacesLoading(){
-  var dd = document.getElementById('places-dropdown');
-  dd.classList.remove('open');
-  dd.innerHTML = '';
-}
-function showNoResults(msg){
-  var dd = document.getElementById('places-dropdown');
-  dd.innerHTML = '<div class="places-no-results">&#128269; ' + msg + '</div>';
-  dd.classList.add('open');
-}
-function closePlacesDropdown(){
-  var dd = document.getElementById('places-dropdown');
-  dd.classList.remove('open');
-}
-
-function clearPlaceSearch(){
-  document.getElementById('ap-search').value = '';
-  document.getElementById('ap-clear').style.display = 'none';
-  document.getElementById('place-preview').style.display = 'none';
-  document.getElementById('ap-extra').style.display = 'none';
-  var btn = document.getElementById('ap-submit-btn');
-  btn.disabled = true; btn.style.opacity='.45'; btn.style.cursor='not-allowed';
-  closePlacesDropdown();
-  selectedPlace = null;
-}
-
-// Keyboard navigation on dropdown
-document.addEventListener('keydown', function(e){
-  var dd = document.getElementById('places-dropdown');
-  if(!dd || !dd.classList.contains('open')) return;
-  var items = dd.querySelectorAll('.places-suggestion');
-  if(!items.length) return;
-  if(e.key === 'ArrowDown'){
-    e.preventDefault();
-    focusedSuggestion = Math.min(focusedSuggestion+1, items.length-1);
-  } else if(e.key === 'ArrowUp'){
-    e.preventDefault();
-    focusedSuggestion = Math.max(focusedSuggestion-1, 0);
-  } else if(e.key === 'Escape'){
-    closePlacesDropdown();
-    return;
-  } else { return; }
-  items.forEach(function(el,i){ el.classList.toggle('focused', i===focusedSuggestion); });
-  items[focusedSuggestion].scrollIntoView({block:'nearest'});
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e){
-  if(!e.target.closest('#m-addplace')) closePlacesDropdown();
-});
-
-/* ═══════════════════════════════════════
-   ADD PLACE (uses selectedPlace data)
-═══════════════════════════════════════ */
+// ADD PLACE
 async function addPlace(){
-  // If no place selected from Google Maps, fall back to manual input
   if(!selectedPlace){
-    var manualName = document.getElementById('ap-search') ?
-      document.getElementById('ap-search').value.trim() : '';
-    if(!manualName){ toast('Please enter a place name'); return; }
-    selectedPlace = {
-      name: manualName,
-      formatted_address: '',
-      types: [],
-      url: 'https://www.google.com/maps/search/' + encodeURIComponent(manualName),
-      geometry: null, photos: [], rating: null, place_id: null
-    };
-    document.getElementById('ap-extra').style.display = 'block';
-    var btn = document.getElementById('ap-submit-btn');
-    if(btn){ btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer'; }
+    var manualName=document.getElementById('ap-search').value.trim();
+    if(!manualName){toast('Please search and select a place');return;}
+    selectedPlace={name:manualName,formatted_address:'',types:[],url:null,geometry:null,photos:[],rating:null,place_id:null};
   }
-
-  var cat  = document.getElementById('ap-cat').value;
-  var note = document.getElementById('ap-note').value.trim();
-  var vis  = document.getElementById('ap-vis').checked;
-
-  var name  = selectedPlace.name;
-  var addr  = selectedPlace.formatted_address || '';
-  var lat   = (selectedPlace.geometry && selectedPlace.geometry.location)
-              ? selectedPlace.geometry.location.lat() : null;
-  var lng   = (selectedPlace.geometry && selectedPlace.geometry.location)
-              ? selectedPlace.geometry.location.lng() : null;
-  var placeId = selectedPlace.place_id || null;
-  var mapsUrl = selectedPlace.url || null;
-
-  // Pick colour pair based on category
-  var colorMap = {
-    'Food and Drink':   ['#C4622D','#E8895A'],
-    'Culture and Sights':['#6B4C9A','#9B7CC4'],
-    'Nature and Parks': ['#4A7C59','#7EAF8E'],
-    'Shopping':         ['#2D6B8C','#5A9BBF'],
-    'Accommodation':    ['#8B4513','#D2691E'],
-    'Entertainment':    ['#C44B6B','#E07090'],
-  };
-  var colors = colorMap[cat] || ['#8B7D6B','#B5A898'];
-
-  var newPlace;
-  if(isConfigured){
-    var insertData = {
-      list_id:    currentListId,
-      added_by:   currentUser.id,
-      name:       name,
-      address:    addr,
-      category:   cat,
-      color1:     colors[0],
-      color2:     colors[1],
-      emoji:      'pin',
-      visited:    vis,
-      lat:        lat,
-      lng:        lng,
-      place_id:   placeId,
-      maps_url:   mapsUrl
-    };
-    var {data,error} = await sb.from('places').insert(insertData).select().single();
-    if(error){ toast('Error adding place: ' + error.message); return; }
-    newPlace = data;
-    if(note){
-      await sb.from('notes').insert({
-        place_id:    newPlace.id,
-        author_id:   currentUser.id,
-        author_name: (currentProfile && currentProfile.name) || 'You',
-        content:     note
-      });
-    }
-  } else {
-    newPlace = {
-      id:'p_'+Date.now(), list_id:currentListId,
-      name:name, address:addr, category:cat,
-      color1:colors[0], color2:colors[1],
-      emoji:'pin', visited:vis,
-      lat:lat, lng:lng, place_id:placeId, maps_url:mapsUrl
-    };
-    DEMO_PLACES[currentListId] = DEMO_PLACES[currentListId] || [];
-    DEMO_PLACES[currentListId].push(newPlace);
-    if(note) DEMO_NOTES[newPlace.id] = ['You: ' + note];
-  }
-
-  clearPlaceSearch();
-  closeM('addplace');
-  loadPlaces(currentListId);
-  toast('&#128205; ' + name + ' added!');
+  var cat=document.getElementById('ap-cat').value;
+  var note=document.getElementById('ap-note').value.trim();
+  var vis=document.getElementById('ap-vis').checked;
+  var colorMap={'Food and Drink':['#C4622D','#E8895A'],'Culture and Sights':['#6B4C9A','#9B7CC4'],'Nature and Parks':['#4A7C59','#7EAF8E'],'Shopping':['#2D6B8C','#5A9BBF'],'Accommodation':['#8B4513','#D2691E'],'Entertainment':['#C44B6B','#E07090']};
+  var colors=colorMap[cat]||['#8B7D6B','#B5A898'];
+  var lat=null,lng=null;
+  if(selectedPlace.geometry&&selectedPlace.geometry.location){lat=selectedPlace.geometry.location.lat();lng=selectedPlace.geometry.location.lng();}
+  var{data,error}=await sb.from('places').insert({list_id:currentListId,added_by:currentUser.id,name:selectedPlace.name,address:selectedPlace.formatted_address||'',category:cat,color1:colors[0],color2:colors[1],emoji:'pin',visited:vis,lat:lat,lng:lng,place_id:selectedPlace.place_id||null,maps_url:selectedPlace.url||null}).select().single();
+  if(error){toast('Error: '+error.message);return;}
+  if(note)await sb.from('notes').insert({place_id:data.id,author_id:currentUser.id,author_name:(currentProfile&&currentProfile.name)||'You',content:note});
+  clearPlaceSearch();document.getElementById('ap-note').value='';document.getElementById('ap-vis').checked=false;
+  closeM('addplace');loadPlaces(currentListId);toast('&#128205; '+selectedPlace.name+' added!');
 }
 
-/* ═══════════════════════════════════════
-   DELETE LIST
-═══════════════════════════════════════ */
+// DELETE
 function askDeleteList(list){
-  showConfirm('&#128465;&#65039;','Delete "' + list.title + '"?','All places will be permanently removed.','Delete',
-    function(){ doDeleteList(list); });
+  showConfirm('&#128465;&#65039;','Delete "'+list.title+'"?','All places will be removed.','Delete',async function(){
+    await sb.from('lists').delete().eq('id',list.id);
+    var item=document.querySelector('.li[data-id="'+list.id+'"]');if(item)item.remove();
+    if(currentListId===list.id){var first=document.querySelector('.li');if(first){var fid=first.getAttribute('data-id');sb.from('lists').select('*').eq('id',fid).single().then(function(r){if(r.data)selectList(r.data);});}else renderEmpty();}
+    toast('List deleted');
+  });
 }
-async function doDeleteList(list){
-  if(isConfigured){
-    var {error} = await sb.from('lists').delete().eq('id', list.id);
-    if(error){ toast('Error deleting list'); return; }
-  } else {
-    DEMO_LISTS = DEMO_LISTS.filter(function(l){ return l.id !== list.id; });
-    delete DEMO_PLACES[list.id];
-  }
-  var item = document.querySelector('.li[data-id="' + list.id + '"]');
-  if(item) item.remove();
-  if(currentListId === list.id){
-    var first = document.querySelector('.li');
-    if(first){
-      var fid = first.getAttribute('data-id');
-      var flist = isConfigured ? {id:fid, title:first.querySelector('.li-name').textContent} : DEMO_LISTS.find(function(l){ return l.id===fid; });
-      if(flist) selectList(flist);
-    } else { renderEmpty(); }
-  }
-  toast('List deleted');
-}
-
-/* ═══════════════════════════════════════
-   DELETE PLACE
-═══════════════════════════════════════ */
 function askDeletePlace(place){
-  showConfirm('&#128205;','Remove "' + place.name + '"?','It will be removed from this list.','Remove',
-    function(){ doDeletePlace(place); });
-}
-async function doDeletePlace(place){
-  if(isConfigured){
-    var {error} = await sb.from('places').delete().eq('id', place.id);
-    if(error){ toast('Error removing place'); return; }
-  } else {
-    DEMO_PLACES[currentListId] = (DEMO_PLACES[currentListId]||[]).filter(function(p){ return p.id !== place.id; });
-  }
-  loadPlaces(currentListId);
-  toast('Place removed');
+  showConfirm('&#128205;','Remove "'+place.name+'"?','It will be removed from this list.','Remove',async function(){
+    await sb.from('places').delete().eq('id',place.id);loadPlaces(currentListId);toast('Place removed');
+  });
 }
 
-/* ═══════════════════════════════════════
-   ADMIN PANEL
-═══════════════════════════════════════ */
-function toggleAdminPanel(){
-  var role = currentProfile && currentProfile.role;
-  if(role === 'admin' || (currentUser && currentUser.id === 'demo')){
-    openM('admin');
-    loadAdminData();
-  }
+// INVITE
+function invitePerson(){
+  var el=document.getElementById('inv-email');var email=el?el.value.trim():'';
+  if(!email)return;
+  var init=email[0].toUpperCase();
+  document.getElementById('inv-list').insertAdjacentHTML('beforeend','<div class="inv-person"><div class="u-av" style="width:26px;height:26px;font-size:10px">'+init+'</div><span class="inv-name">'+email+'</span><span class="inv-role">Can edit</span></div>');
+  el.value='';toast('Invite sent to '+email);
 }
 
+// ADMIN
+function toggleAdminPanel(){if(currentProfile&&currentProfile.role==='admin'){openM('admin');loadAdminData();}}
 async function loadAdminData(){
-  if(!isConfigured){
-    document.getElementById('stat-users').textContent  = '3';
-    document.getElementById('stat-lists').textContent  = DEMO_LISTS.length;
-    document.getElementById('stat-places').textContent = Object.values(DEMO_PLACES).reduce(function(a,v){ return a+v.length; }, 0);
-    document.getElementById('stat-notes').textContent  = Object.values(DEMO_NOTES).reduce(function(a,v){ return a+v.length; }, 0);
-    document.getElementById('admin-user-list').innerHTML =
-      '<div class="user-row"><span>Demo User<br><small style="color:var(--muted)">demo@wanderlist.app</small></span><span>Now</span><span><span class="role-badge role-admin">Admin</span></span><span>-</span></div>' +
-      '<div class="user-row"><span>Mia Park<br><small style="color:var(--muted)">mia@example.com</small></span><span>Jan 2025</span><span><span class="role-badge role-user">User</span></span><span>-</span></div>' +
-      '<div class="user-row"><span>Tom Wu<br><small style="color:var(--muted)">tom@example.com</small></span><span>Feb 2025</span><span><span class="role-badge role-user">User</span></span><span>-</span></div>';
-    return;
-  }
-  var [pRes, lRes, plRes, nRes] = await Promise.all([
-    sb.from('profiles').select('count',{count:'exact',head:true}),
-    sb.from('lists').select('count',{count:'exact',head:true}),
-    sb.from('places').select('count',{count:'exact',head:true}),
-    sb.from('notes').select('count',{count:'exact',head:true})
-  ]);
-  document.getElementById('stat-users').textContent  = pRes.count  || 0;
-  document.getElementById('stat-lists').textContent  = lRes.count  || 0;
-  document.getElementById('stat-places').textContent = plRes.count || 0;
-  document.getElementById('stat-notes').textContent  = nRes.count  || 0;
-
-  var {data:users} = await sb.from('profiles').select('*').order('created_at');
-  var ul = document.getElementById('admin-user-list');
-  ul.innerHTML = '';
+  var[pRes,lRes,plRes,nRes]=await Promise.all([sb.from('profiles').select('count',{count:'exact',head:true}),sb.from('lists').select('count',{count:'exact',head:true}),sb.from('places').select('count',{count:'exact',head:true}),sb.from('notes').select('count',{count:'exact',head:true})]);
+  document.getElementById('stat-users').textContent=pRes.count||0;document.getElementById('stat-lists').textContent=lRes.count||0;document.getElementById('stat-places').textContent=plRes.count||0;document.getElementById('stat-notes').textContent=nRes.count||0;
+  var{data:users}=await sb.from('profiles').select('*').order('created_at');
+  var ul=document.getElementById('admin-user-list');ul.innerHTML='';
   (users||[]).forEach(function(u){
-    var row = document.createElement('div');
-    row.className = 'user-row';
-    var joined = u.created_at ? new Date(u.created_at).toLocaleDateString('en',{month:'short',year:'numeric'}) : '-';
-    row.innerHTML =
-      '<span>' + (u.name||'Unknown') + '<br><small style="color:var(--muted)">' + (u.id.slice(0,8)+'...') + '</small></span>' +
-      '<span>' + joined + '</span>' +
-      '<span><span class="role-badge ' + (u.role==='admin'?'role-admin':'role-user') + '">' + (u.role||'user') + '</span></span>' +
-      '<button class="btn btn-s" style="padding:4px 8px;font-size:11px" onclick="toggleUserRole(\'' + u.id + '\',\'' + (u.role||'user') + '\')">' +
-      (u.role==='admin' ? 'Demote' : 'Make Admin') + '</button>';
+    var row=document.createElement('div');row.className='user-row';
+    var joined=u.created_at?new Date(u.created_at).toLocaleDateString('en',{month:'short',year:'numeric'}):'-';
+    row.innerHTML='<span>'+(u.name||'Unknown')+'</span><span>'+joined+'</span><span><span class="'+(u.role==='admin'?'role-admin':'role-user')+'">'+(u.role||'user')+'</span></span><button class="btn btn-s" style="padding:4px 8px;font-size:11px">'+(u.role==='admin'?'Demote':'Make Admin')+'</button>';
+    row.querySelector('button').addEventListener('click',async function(){var nr=u.role==='admin'?'user':'admin';await sb.from('profiles').update({role:nr}).eq('id',u.id);loadAdminData();toast('Role updated');});
     ul.appendChild(row);
   });
 }
 
-async function toggleUserRole(uid, currentRole){
-  var newRole = currentRole === 'admin' ? 'user' : 'admin';
-  await sb.from('profiles').update({role:newRole}).eq('id',uid);
-  loadAdminData();
-  toast('Role updated to ' + newRole);
-}
+// GOOGLE PLACES
+function initGooglePlaces(){autocompleteService=new google.maps.places.AutocompleteService();var dm=new google.maps.Map(document.createElement('div'));placesService=new google.maps.places.PlacesService(dm);}
+function onPlacesSearchInput(){var input=document.getElementById('ap-search');var val=input.value.trim();document.getElementById('ap-clear').style.display=val?'flex':'none';clearTimeout(searchTimer);if(!val){closePlacesDropdown();return;}showPlacesLoading();searchTimer=setTimeout(function(){searchPlaces(val);},350);}
+function searchPlaces(query){if(!autocompleteService){showNoResults('Search not available');return;}autocompleteService.getPlacePredictions({input:query,types:[]},function(predictions,status){if(status!==google.maps.places.PlacesServiceStatus.OK||!predictions){showNoResults('No results for "'+query+'"');return;}renderSuggestions(predictions);});}
+var TYPE_EMOJI={restaurant:'&#127859;',food:'&#127859;',cafe:'&#9749;',bar:'&#127867;',museum:'&#127963;',park:'&#127807;',lodging:'&#127968;',shopping_mall:'&#128717;',default:'&#128205;'};
+function getTypeEmoji(types){if(!types)return TYPE_EMOJI['default'];for(var i=0;i<types.length;i++){if(TYPE_EMOJI[types[i]])return TYPE_EMOJI[types[i]];}return TYPE_EMOJI['default'];}
+function formatType(types){if(!types||!types.length)return'Place';var skip=['point_of_interest','establishment','political','locality','country'];for(var i=0;i<types.length;i++){if(skip.indexOf(types[i])===-1)return types[i].replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});}return'Place';}
+function renderSuggestions(predictions){var dd=document.getElementById('places-dropdown');dd.innerHTML='';predictions.slice(0,6).forEach(function(pred){var row=document.createElement('div');row.className='places-suggestion';row.innerHTML='<div class="places-suggestion-icon">'+getTypeEmoji(pred.types)+'</div><div style="flex:1;min-width:0"><div class="places-suggestion-main">'+pred.structured_formatting.main_text+'</div><div class="places-suggestion-sub">'+(pred.structured_formatting.secondary_text||'')+'</div></div>';row.addEventListener('click',function(){selectSuggestion(pred);});dd.appendChild(row);});dd.classList.add('open');}
+function selectSuggestion(pred){document.getElementById('ap-search').value=pred.structured_formatting.main_text;document.getElementById('ap-clear').style.display='flex';closePlacesDropdown();showPlacesLoading();if(!placesService){showPreviewFallback(pred);return;}placesService.getDetails({placeId:pred.place_id,fields:['name','formatted_address','geometry','photos','rating','user_ratings_total','types','url']},function(place,status){if(status!==google.maps.places.PlacesServiceStatus.OK){showPreviewFallback(pred);return;}showPlacePreview(place);});}
+function showPlacePreview(place){selectedPlace=place;var imgEl=document.getElementById('pp-img');if(place.photos&&place.photos.length){var url=place.photos[0].getUrl({maxWidth:600,maxHeight:300});imgEl.innerHTML='<img src="'+url+'" alt="'+place.name+'" onerror="this.parentElement.innerHTML=\'<div class=place-preview-img-fallback>&#128205;</div>\'">';}else{imgEl.innerHTML='<div class="place-preview-img-fallback">&#128205;</div>';}document.getElementById('pp-name').textContent=place.name;document.getElementById('pp-addr').textContent=place.formatted_address||'';document.getElementById('pp-type').textContent=formatType(place.types);document.getElementById('pp-rating').innerHTML=place.rating?('&#9733; '+place.rating.toFixed(1)+(place.user_ratings_total?' ('+place.user_ratings_total.toLocaleString()+')'  :'')):'';document.getElementById('pp-gmaps').href=place.url||'#';document.getElementById('place-preview').style.display='block';document.getElementById('ap-extra').style.display='block';hidePlacesLoading();var btn=document.getElementById('submit-addplace');btn.disabled=false;btn.style.opacity='1';autoPickCategory(place.types);}
+function showPreviewFallback(pred){selectedPlace={name:pred.structured_formatting.main_text,formatted_address:pred.structured_formatting.secondary_text||'',types:pred.types||[],url:null,geometry:null,photos:[],rating:null,place_id:null};document.getElementById('pp-img').innerHTML='<div class="place-preview-img-fallback">&#128205;</div>';document.getElementById('pp-name').textContent=selectedPlace.name;document.getElementById('pp-addr').textContent=selectedPlace.formatted_address;document.getElementById('pp-type').textContent=formatType(selectedPlace.types);document.getElementById('pp-rating').innerHTML='';document.getElementById('pp-gmaps').href='#';document.getElementById('place-preview').style.display='block';document.getElementById('ap-extra').style.display='block';hidePlacesLoading();var btn=document.getElementById('submit-addplace');btn.disabled=false;btn.style.opacity='1';autoPickCategory(selectedPlace.types);}
+function autoPickCategory(types){if(!types)return;var sel=document.getElementById('ap-cat');var maps=[[['restaurant','food','cafe','bar','bakery','meal_takeaway'],'Food and Drink'],[['museum','art_gallery','tourist_attraction','church','mosque'],'Culture and Sights'],[['park','natural_feature','campground','zoo'],'Nature and Parks'],[['shopping_mall','store','clothing_store','supermarket'],'Shopping'],[['lodging','hotel'],'Accommodation']];for(var i=0;i<maps.length;i++){for(var j=0;j<types.length;j++){if(maps[i][0].indexOf(types[j])!==-1){sel.value=maps[i][1];return;}}}}
+function showPlacesLoading(){var dd=document.getElementById('places-dropdown');dd.innerHTML='<div class="places-loading">Searching...</div>';dd.classList.add('open');}
+function hidePlacesLoading(){var dd=document.getElementById('places-dropdown');dd.classList.remove('open');dd.innerHTML='';}
+function showNoResults(msg){var dd=document.getElementById('places-dropdown');dd.innerHTML='<div class="places-no-results">&#128269; '+msg+'</div>';dd.classList.add('open');}
+function closePlacesDropdown(){document.getElementById('places-dropdown').classList.remove('open');}
+function clearPlaceSearch(){document.getElementById('ap-search').value='';document.getElementById('ap-clear').style.display='none';document.getElementById('place-preview').style.display='none';document.getElementById('ap-extra').style.display='none';var btn=document.getElementById('submit-addplace');btn.disabled=true;btn.style.opacity='.45';closePlacesDropdown();selectedPlace=null;}
 
-/* ═══════════════════════════════════════
-   INVITE
-═══════════════════════════════════════ */
-function invitePerson(){
-  var el = document.getElementById('inv-email');
-  var email = el ? el.value.trim() : '';
-  if(!email) return;
-  var init = email[0].toUpperCase();
-  document.getElementById('inv-list').insertAdjacentHTML('beforeend',
-    '<div class="inv-person"><div class="cav" style="background:linear-gradient(135deg,#6B4C9A,#9B7CC4);border:none">' + init + '</div>' +
-    '<span class="inv-name">' + email + '</span><span class="inv-role">Can edit</span></div>');
-  if(el) el.value = '';
-  toast('Invite sent to ' + email);
-}
+// NAV
+function isMob(){return window.innerWidth<=680;}
+function toggleSB(){if(isMob())openMobile();else{dkCollapsed=!dkCollapsed;document.getElementById('sidebar').classList.toggle('collapsed',dkCollapsed);}}
+function openMobile(){document.getElementById('sidebar').classList.add('open');document.getElementById('backdrop').classList.add('on');}
+function closeMobile(){document.getElementById('sidebar').classList.remove('open');document.getElementById('backdrop').classList.remove('on');}
+window.addEventListener('resize',function(){if(!isMob())closeMobile();});
 
-/* ═══════════════════════════════════════
-   SIDEBAR TOGGLE
-═══════════════════════════════════════ */
-function isMob(){ return window.innerWidth <= 680; }
-function toggleSB(){
-  if(isMob()){ openMobile(); }
-  else { dkCollapsed=!dkCollapsed; document.getElementById('sidebar').classList.toggle('collapsed',dkCollapsed); }
-}
-function openMobile(){
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('backdrop').classList.add('on');
-}
-function closeMobile(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('backdrop').classList.remove('on');
-}
-window.addEventListener('resize', function(){ if(!isMob()) closeMobile(); });
+// MODALS
+function openM(id){var el=document.getElementById('m-'+id);if(el)el.classList.add('on');}
+function closeM(id){var el=document.getElementById('m-'+id);if(el)el.classList.remove('on');}
+document.querySelectorAll('.moverlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)el.classList.remove('on');});});
 
-/* ═══════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════ */
-function openM(id){
-  var el = document.getElementById('m-'+id);
-  if(!el) return;
-  el.classList.add('on');
-  if(id === 'addplace'){
-    var inp = document.getElementById('ap-search');
-    if(inp && !inp._wired){
-      inp.addEventListener('input', onPlacesSearchInput);
-      inp._wired = true;
-    }
-  }
-}
-function closeM(id){
-  var el = document.getElementById('m-'+id);
-  if(el) el.classList.remove('on');
-}
-document.querySelectorAll('.moverlay').forEach(function(el){
-  el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('on'); });
-});
-function copyLink(){
-  var link = 'https://waleedju88.github.io/wanderlist/?list=' + currentListId;
-  if(navigator.clipboard) navigator.clipboard.writeText(link).catch(function(){});
-  document.getElementById('sharelink').value = link;
-  toast('Link copied!');
-}
-function navTo(q, mapsUrl){
-  var url = mapsUrl || ('https://www.google.com/maps/search/' + encodeURIComponent(q));
-  window.open(url, '_blank');
-}
-function navPlace(){ if(currentPlace) navTo(currentPlace.name + ' ' + (currentPlace.address||''), currentPlace.maps_url); }
-function openMapView(){
-  var content = document.getElementById('main-content');
-  var names = [];
-  content.querySelectorAll('.pcard-name').forEach(function(el){ names.push(el.textContent); });
-  window.open('https://www.google.com/maps/search/' + encodeURIComponent(names.join('+') || 'travel places'), '_blank');
-}
-function setView(v, el){ document.querySelectorAll('.vtab').forEach(function(t){t.classList.remove('on');}); el.classList.add('on'); if(v==='map') openMapView(); }
-function setNav(el){ document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('on');}); el.classList.add('on'); }
-function pickSwatch(el){ el.closest('.swatches').querySelectorAll('.swatch').forEach(function(s){s.classList.remove('on');}); el.classList.add('on'); }
-function pickPriv(el, type){
-  curPriv = type;
-  el.closest('.priv-opts').querySelectorAll('.popt').forEach(function(o){o.className='popt';});
-  el.classList.add(type==='p'?'sp':type==='s'?'ss':'spub');
-}
+// HELPERS
+function copyLink(){navigator.clipboard&&navigator.clipboard.writeText(BASE_URL+'/?list='+currentListId).catch(function(){});toast('Link copied!');}
+function navTo(q,url){window.open(url||('https://www.google.com/maps/search/'+encodeURIComponent(q)),'_blank');}
+function navPlace(){if(currentPlace)navTo(currentPlace.name+' '+(currentPlace.address||''),currentPlace.maps_url);}
+function openMapView(){var names=[];document.querySelectorAll('.pcard-name').forEach(function(el){names.push(el.textContent);});window.open('https://www.google.com/maps/search/'+encodeURIComponent(names.join('+')||'travel places'),'_blank');}
+function setView(v,el){document.querySelectorAll('.vtab').forEach(function(t){t.classList.remove('on');});el.classList.add('on');if(v==='map')openMapView();}
+function setNav(el){document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}
+function pickSwatch(el){el.closest('.swatches').querySelectorAll('.swatch').forEach(function(s){s.classList.remove('on');});el.classList.add('on');}
+function pickPriv(el,type){curPriv=type;el.closest('.priv-opts').querySelectorAll('.popt').forEach(function(o){o.className='popt';});el.classList.add(type==='p'?'sp':type==='s'?'ss':'spub');}
 var toastTimer;
-function toast(msg){ var t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove('on');},2500); }
-var confirmCb=null;
-function showConfirm(icon,title,msg,okLbl,cb){ document.getElementById('confirmIcon').innerHTML=icon; document.getElementById('confirmTitle').textContent=title; document.getElementById('confirmMsg').textContent=msg; document.getElementById('confirmOkBtn').textContent=okLbl; confirmCb=cb; document.getElementById('confirmOverlay').classList.add('on'); }
-function dismissConfirm(){ document.getElementById('confirmOverlay').classList.remove('on'); confirmCb=null; }
-function confirmOk(){ document.getElementById('confirmOverlay').classList.remove('on'); if(confirmCb) confirmCb(); confirmCb=null; }
+function toast(msg){var t=document.getElementById('toastEl');t.innerHTML=msg;t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('on');},2500);}
+function showConfirm(icon,title,msg,okLbl,cb){document.getElementById('confirmIcon').innerHTML=icon;document.getElementById('confirmTitle').textContent=title;document.getElementById('confirmMsg').textContent=msg;document.getElementById('confirm-ok').textContent=okLbl;confirmCb=cb;document.getElementById('confirmOverlay').classList.add('on');}
+function dismissConfirm(){document.getElementById('confirmOverlay').classList.remove('on');confirmCb=null;}
+function confirmOk(){document.getElementById('confirmOverlay').classList.remove('on');if(confirmCb)confirmCb();confirmCb=null;}
 
-/* ═══════════════════════════════════════
-   BOOT
-═══════════════════════════════════════ */
+// WIRE BUTTONS — same pattern as test.html
+function get(id){return document.getElementById(id);}
+function on(id,ev,fn){var el=get(id);if(el)el.addEventListener(ev,fn);}
 
-// Show login page immediately — do not wait for anything
-(function showLoginImmediately(){
-  var loginPage = document.getElementById('page-login');
-  if(loginPage) loginPage.classList.add('active');
-})();
+on('tab-login','click',function(){showAuthTab('login');});
+on('tab-signup','click',function(){showAuthTab('signup');});
+on('btn-signin','click',signInEmail);
+on('btn-signup','click',signUpEmail);
+on('btn-google-signin','click',signInGoogle);
+on('btn-google-signup','click',signInGoogle);
+on('btn-forgot','click',showForgot);
+on('login-password','keydown',function(e){if(e.key==='Enter')signInEmail();});
+on('signup-password','keydown',function(e){if(e.key==='Enter')signUpEmail();});
+on('btn-ham','click',toggleSB);
+on('btn-newlist','click',function(){openM('newlist');});
+on('btn-add-top','click',function(){openM('addplace');});
+on('btn-share-top','click',function(){openM('share');});
+on('btn-signout','click',signOut);
+on('sb-user-btn','click',toggleAdminPanel);
+on('backdrop','click',closeMobile);
+on('btn-view-grid','click',function(){setView('grid',get('btn-view-grid'));});
+on('btn-view-map','click',function(){setView('map',get('btn-view-map'));});
+on('bnav-lists','click',function(){toggleSB();setNav(get('bnav-lists'));});
+on('bnav-map','click',function(){openMapView();setNav(get('bnav-map'));});
+on('bnav-add','click',function(){openM('addplace');setNav(get('bnav-add'));});
+on('bnav-share','click',function(){openM('share');setNav(get('bnav-share'));});
+on('close-newlist','click',function(){closeM('newlist');});
+on('cancel-newlist','click',function(){closeM('newlist');});
+on('submit-newlist','click',createList);
+on('close-addplace','click',function(){closeM('addplace');clearPlaceSearch();});
+on('cancel-addplace','click',function(){closeM('addplace');clearPlaceSearch();});
+on('submit-addplace','click',addPlace);
+on('close-share','click',function(){closeM('share');});
+on('done-share','click',function(){closeM('share');toast('Saved');});
+on('btn-copylink','click',copyLink);
+on('btn-invite','click',invitePerson);
+on('close-detail','click',function(){closeM('detail');});
+on('btn-addnote','click',addNote);
+on('btn-markvisited','click',markVisited);
+on('btn-navigate','click',navPlace);
+on('det-maplink','click',navPlace);
+on('close-admin','click',function(){closeM('admin');});
+on('confirm-cancel','click',dismissConfirm);
+on('confirm-ok','click',confirmOk);
+on('ap-clear','click',clearPlaceSearch);
+on('ap-search','input',onPlacesSearchInput);
 
-// Wire up all auth buttons via JS (more reliable than inline onclick on iOS Safari)
+// Debug: confirm wiring worked
+var debugBar = document.getElementById('debug-bar');
+if(debugBar){
+  debugBar.textContent = 'Buttons wired OK - tap Sign In or Sign Up to test';
+  debugBar.style.background = '#2980b9';
+  setTimeout(function(){ debugBar.style.display='none'; }, 5000);
+}
+document.querySelectorAll('#nl-swatches .swatch').forEach(function(el){el.addEventListener('click',function(){pickSwatch(this);});});
+document.querySelectorAll('#nl-priv .popt').forEach(function(el){el.addEventListener('click',function(){pickPriv(this,this.getAttribute('data-priv'));});});
 
-  // Tab switching
-  var tabLogin  = document.getElementById('tab-login');
-  var tabSignup = document.getElementById('tab-signup');
-  if(tabLogin)  tabLogin.addEventListener('click',  function(){ showAuthTab('login'); if(tabSignup) tabSignup.addEventListener('click', function(){ showAuthTab('signup'); });
-
-  // Sign in button
-  var btnSignIn = document.querySelector('#form-login .btn-terra');
-  if(btnSignIn) btnSignIn.addEventListener('click', signInEmail);
-
-  // Sign up button
-  var btnSignUp = document.querySelector('#form-signup .btn-terra');
-  if(btnSignUp) btnSignUp.addEventListener('click', signUpEmail);
-
-  // Google buttons
-  document.querySelectorAll('.btn-google').forEach(function(btn){
-    btn.addEventListener('click', signInGoogle);
-  });
-
-  // Forgot password
-  var forgotLink = document.querySelector('.forgot-link a');
-  if(forgotLink) forgotLink.addEventListener('click', showForgot);
-
-  // Enter key on password fields
-  var loginPass = document.getElementById('login-password');
-  if(loginPass) loginPass.addEventListener('keydown', function(e){
-    if(e.key === 'Enter') signInEmail();
-  });
-  var signupPass = document.getElementById('signup-password');
-  if(signupPass) signupPass.addEventListener('keydown', function(e){
-    if(e.key === 'Enter') signUpEmail();
-  });
+// BOOT — check existing session
+sb.auth.getSession().then(function(result){
+  var session=result&&result.data&&result.data.session;
+  if(session&&session.user)onSignedIn(session.user);
 });
-
-// Then run the full boot once DOM + scripts are ready
-
-  boot();
-var bootRan = false;
-async function boot(){
-  if(bootRan) return;
-  bootRan = true;
-  try {
-    if(!isConfigured || !sb){
-      showPage('login');
-      return;
-    }
-    var result = await sb.auth.getSession();
-    var session = result && result.data && result.data.session;
-    if(session && session.user){
-      onSignedIn(session.user);
-    } else {
-      showPage('login');
-    }
-    sb.auth.onAuthStateChange(function(event, session){
-      if(event === 'SIGNED_IN' && session) onSignedIn(session.user);
-      if(event === 'SIGNED_OUT') showPage('login');
-    });
-  } catch(e){
-    console.error('Boot error:', e);
-    showPage('login');
-  }
-}
-// ── WIRE UP ALL BUTTONS VIA addEventListener (no inline onclick) ──
-
-
-function wireButtons(){
-  function on(id, ev, fn){ var el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
-  function onAll(sel, ev, fn){ document.querySelectorAll(sel).forEach(function(el){ el.addEventListener(ev,fn); }); }
-
-  // Auth tabs
-  on('tab-login',  'click', function(){ showAuthTab('login'); });
-  on('tab-signup', 'click', function(){ showAuthTab('signup'); });
-
-  // Auth buttons
-  on('btn-signin',       'click', signInEmail);
-  on('btn-signup',       'click', signUpEmail);
-  on('btn-google-signin','click', signInGoogle);
-  on('btn-google-signup','click', signInGoogle);
-  on('btn-forgot',       'click', showForgot);
-
-  // Enter key on inputs
-  on('login-password',  'keydown', function(e){ if(e.key==='Enter') signInEmail(); });
-  on('signup-password', 'keydown', function(e){ if(e.key==='Enter') signUpEmail(); });
-
-  // App buttons
-  on('btn-ham',       'click', toggleSB);
-  on('btn-newlist',   'click', function(){ openM('newlist'); });
-  on('btn-add-top',   'click', function(){ openM('addplace'); });
-  on('btn-share-top', 'click', function(){ openM('share'); });
-  on('btn-signout',   'click', signOut);
-  on('sb-user-btn',   'click', toggleAdminPanel);
-  on('backdrop',      'click', closeMobile);
-
-  // Bottom nav
-  on('bnav-lists', 'click', function(){ toggleSB(); setNav(document.getElementById('bnav-lists')); });
-  on('bnav-map',   'click', function(){ openMapView(); setNav(document.getElementById('bnav-map')); });
-  on('bnav-add',   'click', function(){ openM('addplace'); setNav(document.getElementById('bnav-add')); });
-  on('bnav-share', 'click', function(){ openM('share'); setNav(document.getElementById('bnav-share')); });
-
-  // View tabs
-  on('btn-view-grid', 'click', function(){ setView('grid', document.getElementById('btn-view-grid')); });
-  on('btn-view-map',  'click', function(){ setView('map',  document.getElementById('btn-view-map')); });
-
-  // Modal close buttons
-  on('close-newlist',  'click', function(){ closeM('newlist'); });
-  on('cancel-newlist', 'click', function(){ closeM('newlist'); });
-  on('submit-newlist', 'click', createList);
-  on('close-addplace', 'click', function(){ closeM('addplace'); clearPlaceSearch(); });
-  on('cancel-addplace','click', function(){ closeM('addplace'); clearPlaceSearch(); });
-  on('submit-addplace','click', addPlace);
-  on('close-share',    'click', function(){ closeM('share'); });
-  on('done-share',     'click', function(){ closeM('share'); toast('Saved'); });
-  on('btn-copylink',   'click', copyLink);
-  on('btn-invite',     'click', invitePerson);
-  on('close-detail',   'click', function(){ closeM('detail'); });
-  on('btn-addnote',    'click', addNote);
-  on('btn-markvisited','click', markVisited);
-  on('btn-navigate',   'click', navPlace);
-  on('det-maplink',    'click', navPlace);
-  on('close-admin',    'click', function(){ closeM('admin'); });
-  on('confirm-cancel', 'click', dismissConfirm);
-  on('confirm-ok',     'click', confirmOk);
-  on('ap-clear',       'click', clearPlaceSearch);
-
-  // Swatches
-  onAll('#nl-swatches .swatch', 'click', function(){ pickSwatch(this); });
-
-  // Privacy options
-  onAll('#nl-priv .popt', 'click', function(){ pickPriv(this, this.getAttribute('data-priv')); });
-
-  // Places search
-  on('ap-search', 'input', onPlacesSearchInput);
-  on('btn-close-banner', 'click', function(){
-    var b = document.getElementById('setup-banner');
-    if(b) b.style.display = 'none';
-  });
-
-  // Modal overlay click to close
-  document.querySelectorAll('.moverlay').forEach(function(el){
-    el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('on'); });
-  });
-}
-
-// Start
-boot();
-wireButtons();
-
+sb.auth.onAuthStateChange(function(event,session){
+  if(event==='SIGNED_IN'&&session)onSignedIn(session.user);
+  if(event==='SIGNED_OUT')showPage('login');
+});
 </script>
 </body>
 </html>
