@@ -436,12 +436,16 @@ function makeSidebarItem(list){
   var item=document.createElement('div');
   item.className='li';item.setAttribute('data-id',list.id);
   var isPrivate=list.privacy==='private';
+  var isOwner=list.owner_id===currentUser.id;
+  var isAdmin=currentProfile&&currentProfile.role==='admin';
+  var canDelete=isOwner||isAdmin;
   item.innerHTML='<div class="li-dot" style="background:'+(list.color||'#C4622D')+'"></div>'+
     '<span class="li-name">'+list.title+'</span>'+
     (isPrivate?'<span class="li-lock">&#128274;</span>':'<span class="li-count">0</span>')+
-    '<button class="li-del" title="Delete">&#10005;</button>';
+    (canDelete?'<button class="li-del" title="Delete">&#10005;</button>':'');
   item.addEventListener('click',function(){selectList(list);});
-  item.querySelector('.li-del').addEventListener('click',function(e){e.stopPropagation();askDeleteList(list);});
+  var delBtn=item.querySelector('.li-del');
+  if(delBtn)delBtn.addEventListener('click',function(e){e.stopPropagation();askDeleteList(list);});
   return item;
 }
 function selectList(list){
@@ -501,7 +505,12 @@ function renderPlaces(places,notes){
       '<button class="ibtn nav" title="Navigate">&#129517;</button>'+
       '<button class="ibtn del" title="Remove">&#128465;&#65039;</button></div></div></div>';
     card.querySelector('.ibtn.nav').addEventListener('click',function(e){e.stopPropagation();navTo(p.name+' '+(p.address||''),p.maps_url);});
-    card.querySelector('.ibtn.del').addEventListener('click',function(e){e.stopPropagation();askDeletePlace(p);});
+    var delBtn=card.querySelector('.ibtn.del');
+    if(delBtn){
+      var canDeletePlace=(p.added_by===currentUser.id)||(currentProfile&&currentProfile.role==='admin');
+      if(!canDeletePlace){delBtn.style.display='none';}
+      else{delBtn.addEventListener('click',function(e){e.stopPropagation();askDeletePlace(p);});}
+    }
     card.addEventListener('click',function(){openDetail(p,placeNotes);});
     grid.appendChild(card);
   });
@@ -586,6 +595,9 @@ async function addPlace(){
 
 // DELETE
 function askDeleteList(list){
+  var isOwner=list.owner_id===currentUser.id;
+  var isAdmin=currentProfile&&currentProfile.role==='admin';
+  if(!isOwner&&!isAdmin){toast('You can only delete your own lists');return;}
   showConfirm('&#128465;&#65039;','Delete "'+list.title+'"?','All places will be removed.','Delete',async function(){
     await sb.from('lists').delete().eq('id',list.id);
     var item=document.querySelector('.li[data-id="'+list.id+'"]');if(item)item.remove();
@@ -594,6 +606,15 @@ function askDeleteList(list){
   });
 }
 function askDeletePlace(place){
+  var isAdder=place.added_by===currentUser.id;
+  var isListOwner=false;
+  var listItem=document.querySelector('.li[data-id="'+place.list_id+'"]');
+  if(listItem){
+    // Check if current user owns the list by checking sidebar active item ownership
+    isListOwner=currentListId===place.list_id&&currentUser.id===place.added_by;
+  }
+  var isAdmin=currentProfile&&currentProfile.role==='admin';
+  if(!isAdder&&!isAdmin){toast('You can only remove places you added');return;}
   showConfirm('&#128205;','Remove "'+place.name+'"?','It will be removed from this list.','Remove',async function(){
     await sb.from('places').delete().eq('id',place.id);loadPlaces(currentListId);toast('Place removed');
   });
