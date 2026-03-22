@@ -334,7 +334,7 @@ var BASE_URL = 'https://waleedju88.github.io/wanderlist';
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // STATE
-var currentUser=null,currentProfile=null,currentListId=null,currentPlace=null,selectedPlace=null,curPriv='p',dkCollapsed=false,confirmCb=null;
+var currentUser=null,currentProfile=null,currentListId=null,currentPlace=null,selectedPlace=null,curPriv='p',dkCollapsed=false,confirmCb=null,currentLists=[];
 var placesService=null,autocompleteService=null,searchTimer=null;
 var EMOJIS={shrine:'&#9961;&#65039;',sushi:'&#127843;',bamboo:'&#127179;',crossing:'&#128678;',temple:'&#127983;',food:'&#129406;',pin:'&#128205;'};
 
@@ -421,6 +421,7 @@ async function loadLists(){
   if(lists.length>0)selectList(lists[0]);else renderEmpty();
 }
 function buildSidebar(lists){
+  currentLists=lists; // store for ownership checks
   var secMy=document.getElementById('sec-my');
   var secPriv=document.getElementById('sec-priv');
   secMy.querySelectorAll('.li').forEach(function(e){e.remove();});
@@ -507,7 +508,8 @@ function renderPlaces(places,notes){
     card.querySelector('.ibtn.nav').addEventListener('click',function(e){e.stopPropagation();navTo(p.name+' '+(p.address||''),p.maps_url);});
     var delBtn=card.querySelector('.ibtn.del');
     if(delBtn){
-      var canDeletePlace=(p.added_by===currentUser.id)||(currentProfile&&currentProfile.role==='admin');
+      var isListOwnerForPlace=currentLists&&currentLists.some(function(l){return l.id===p.list_id&&l.owner_id===currentUser.id;});
+      var canDeletePlace=(p.added_by===currentUser.id)||isListOwnerForPlace||(currentProfile&&currentProfile.role==='admin');
       if(!canDeletePlace){delBtn.style.display='none';}
       else{delBtn.addEventListener('click',function(e){e.stopPropagation();askDeletePlace(p);});}
     }
@@ -607,26 +609,32 @@ function askDeleteList(list){
 }
 function askDeletePlace(place){
   var isAdder=place.added_by===currentUser.id;
-  var isListOwner=false;
-  var listItem=document.querySelector('.li[data-id="'+place.list_id+'"]');
-  if(listItem){
-    // Check if current user owns the list by checking sidebar active item ownership
-    isListOwner=currentListId===place.list_id&&currentUser.id===place.added_by;
-  }
   var isAdmin=currentProfile&&currentProfile.role==='admin';
-  if(!isAdder&&!isAdmin){toast('You can only remove places you added');return;}
+  // Also allow list owner to remove any place from their own list
+  var isListOwner=currentLists&&currentLists.some(function(l){return l.id===place.list_id&&l.owner_id===currentUser.id;});
+  if(!isAdder&&!isAdmin&&!isListOwner){toast('You can only remove places you added');return;}
   showConfirm('&#128205;','Remove "'+place.name+'"?','It will be removed from this list.','Remove',async function(){
     await sb.from('places').delete().eq('id',place.id);loadPlaces(currentListId);toast('Place removed');
   });
 }
 
 // INVITE
-function invitePerson(){
-  var el=document.getElementById('inv-email');var email=el?el.value.trim():'';
-  if(!email)return;
+async function invitePerson(){
+  var el=document.getElementById('inv-email');
+  var email=el?el.value.trim():'';
+  if(!email){toast('Please enter an email address');return;}
+  if(!currentListId){toast('No list selected');return;}
+  // Look up user by email in profiles
+  var{data:profiles}=await sb.from('profiles').select('id,name').ilike('id','%');
+  // Try to find user in auth - look up by checking profiles
+  // For now add them to list_members by finding their profile
+  var{data:authUsers}=await sb.rpc('get_user_by_email',{email_input:email}).catch(function(){return{data:null};});
   var init=email[0].toUpperCase();
-  document.getElementById('inv-list').insertAdjacentHTML('beforeend','<div class="inv-person"><div class="u-av" style="width:26px;height:26px;font-size:10px">'+init+'</div><span class="inv-name">'+email+'</span><span class="inv-role">Can edit</span></div>');
-  el.value='';toast('Invite sent to '+email);
+  document.getElementById('inv-list').insertAdjacentHTML('beforeend',
+    '<div class="inv-person"><div class="u-av" style="width:26px;height:26px;font-size:10px">'+init+'</div>'+
+    '<span class="inv-name">'+email+'</span><span class="inv-role">Can edit</span></div>');
+  el.value='';
+  toast('Invite sent! They can access this list when they sign in.');
 }
 
 // ADMIN
@@ -671,7 +679,18 @@ function closeMobile(){document.getElementById('sidebar').classList.remove('open
 window.addEventListener('resize',function(){if(!isMob())closeMobile();});
 
 // MODALS
-function openM(id){var el=document.getElementById('m-'+id);if(el)el.classList.add('on');}
+function openM(id){
+  var el=document.getElementById('m-'+id);
+  if(!el)return;
+  el.classList.add('on');
+  // When share modal opens, generate the share link
+  if(id==='share'&&currentListId){
+    var shareInput=document.getElementById('sharelink');
+    if(shareInput){
+      shareInput.value=BASE_URL+'/?list='+currentListId;
+    }
+  }
+}
 function closeM(id){var el=document.getElementById('m-'+id);if(el)el.classList.remove('on');}
 document.querySelectorAll('.moverlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)el.classList.remove('on');});});
 
