@@ -1146,11 +1146,46 @@ function confirmOk(){ document.getElementById('confirmOverlay').classList.remove
 ═══════════════════════════════════════ */
 
 // Show login page immediately — do not wait for anything
-// This ensures the page is NEVER blank
 (function showLoginImmediately(){
   var loginPage = document.getElementById('page-login');
   if(loginPage) loginPage.classList.add('active');
 })();
+
+// Wire up all auth buttons via JS (more reliable than inline onclick on iOS Safari)
+document.addEventListener('DOMContentLoaded', function(){
+  // Tab switching
+  var tabLogin  = document.getElementById('tab-login');
+  var tabSignup = document.getElementById('tab-signup');
+  if(tabLogin)  tabLogin.addEventListener('click',  function(){ showAuthTab('login'); });
+  if(tabSignup) tabSignup.addEventListener('click', function(){ showAuthTab('signup'); });
+
+  // Sign in button
+  var btnSignIn = document.querySelector('#form-login .btn-terra');
+  if(btnSignIn) btnSignIn.addEventListener('click', signInEmail);
+
+  // Sign up button
+  var btnSignUp = document.querySelector('#form-signup .btn-terra');
+  if(btnSignUp) btnSignUp.addEventListener('click', signUpEmail);
+
+  // Google buttons
+  document.querySelectorAll('.btn-google').forEach(function(btn){
+    btn.addEventListener('click', signInGoogle);
+  });
+
+  // Forgot password
+  var forgotLink = document.querySelector('.forgot-link a');
+  if(forgotLink) forgotLink.addEventListener('click', showForgot);
+
+  // Enter key on password fields
+  var loginPass = document.getElementById('login-password');
+  if(loginPass) loginPass.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') signInEmail();
+  });
+  var signupPass = document.getElementById('signup-password');
+  if(signupPass) signupPass.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') signUpEmail();
+  });
+});
 
 // Then run the full boot once DOM + scripts are ready
 document.addEventListener('DOMContentLoaded', function(){
