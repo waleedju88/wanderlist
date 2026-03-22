@@ -243,17 +243,6 @@ body { font-family: 'DM Sans', sans-serif; background: #1A1410; color: #F5EFE0; 
 </head>
 <body>
 
-<!-- DEBUG BAR - remove after fixing -->
-<div id="debug-bar" style="position:fixed;top:0;left:0;right:0;background:#ff6b35;color:#fff;font-size:13px;font-family:monospace;padding:6px 10px;z-index:99999;text-align:center">
-  JS loading... (if you see this after 3 seconds, JavaScript is blocked)
-</div>
-
-<script>
-// This runs immediately - if it runs, JS is working
-document.getElementById('debug-bar').textContent = 'JS OK - wiring buttons...';
-document.getElementById('debug-bar').style.background = '#27ae60';
-</script>
-
 <!-- LOGIN -->
 <div id="page-login">
   <div class="login-card">
@@ -727,13 +716,6 @@ on('confirm-ok','click',confirmOk);
 on('ap-clear','click',clearPlaceSearch);
 on('ap-search','input',onPlacesSearchInput);
 
-// Debug: confirm wiring worked
-var debugBar = document.getElementById('debug-bar');
-if(debugBar){
-  debugBar.textContent = 'Buttons wired OK - tap Sign In or Sign Up to test';
-  debugBar.style.background = '#2980b9';
-  setTimeout(function(){ debugBar.style.display='none'; }, 5000);
-}
 document.querySelectorAll('#nl-swatches .swatch').forEach(function(el){el.addEventListener('click',function(){pickSwatch(this);});});
 document.querySelectorAll('#nl-priv .popt').forEach(function(el){el.addEventListener('click',function(){pickPriv(this,this.getAttribute('data-priv'));});});
 
