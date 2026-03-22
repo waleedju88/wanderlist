@@ -1,4 +1,5 @@
 /* Wanderlist - style.css */
+/* Wanderlist - style.css */
 /* ═══════════════ TOKENS ═══════════════ */
 :root{
   --sand:#F5EFE0;--sand-dark:#EDE4CC;--ink:#1A1410;--ink-light:#3D3128;
@@ -9,23 +10,25 @@
   --csh:0 8px 40px rgba(26,20,16,.14),0 2px 8px rgba(26,20,16,.06);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--ink)}
+html,body{height:100%;width:100%;overflow:hidden;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;padding:0;overflow:hidden}
 
 /* ═══════════════ PAGES ═══════════════ */
 .page{display:none;position:fixed;inset:0;z-index:10}
 .page.active{display:flex}
-/* Login page shows by default until JS runs */
-#page-login{display:flex}
-#page-login.hidden-by-js{display:none}
-
-/* ═══════════════ LOGIN PAGE ═══════════════ */
+/* LOGIN PAGE - covers full screen */
 #page-login{
+  display:flex;
+  position:fixed;
+  inset:0;
+  z-index:10;
   background:var(--ink);
-  align-items:center;justify-content:center;
+  align-items:center;
+  justify-content:center;
   flex-direction:column;
   padding:24px;
 }
+#page-login.hidden-by-js{display:none !important;}
 #page-login::before{
   content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse at 30% 20%,rgba(196,98,45,.18) 0%,transparent 60%),
