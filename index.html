@@ -51,8 +51,9 @@ body { font-family: 'DM Sans', sans-serif; background: #1A1410; color: #F5EFE0; 
 .sb-logo h1 { font-family:'Playfair Display',serif; font-size:19px; font-weight:700; color:#F5EFE0; letter-spacing:-.02em; }
 .sb-logo h1 span { color:#E8895A; font-style:italic; }
 .sb-logo p { font-size:10px; color:#B5A898; margin-top:1px; letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
-.sb-sec { padding:14px 12px 4px; }
-.sb-lbl { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#8B7D6B; font-weight:600; margin-bottom:5px; padding:0 6px; white-space:nowrap; }
+.sb-sec { padding:10px 12px 4px; }
+.sb-sec[style*="display: none"],.sb-sec[style*="display:none"]{ padding:0; }
+.sb-lbl { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#8B7D6B; font-weight:600; margin-bottom:5px; padding:4px 6px 3px; white-space:nowrap; border-bottom:1px solid rgba(255,255,255,.06); display:flex; align-items:center; gap:5px; }
 .li { display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:9px; cursor:pointer; margin-bottom:1px; white-space:nowrap; }
 .li:hover { background:rgba(255,255,255,.07); }
 .li.active { background:rgba(196,98,45,.2); }
@@ -277,9 +278,10 @@ body { font-family: 'DM Sans', sans-serif; background: #1A1410; color: #F5EFE0; 
   <div class="backdrop" id="backdrop"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sb-logo"><h1>Wander<span>list</span></h1><p>Your travel companion</p></div>
-    <div class="sb-sec" id="sec-my"><div class="sb-lbl">My Lists</div></div>
+    <div class="sb-sec" id="sec-own"><div class="sb-lbl">My Lists</div></div>
     <div class="sb-sec" id="sec-priv"><div class="sb-lbl">&#128274; Private</div></div>
-    <div class="sb-sec" id="sec-shared"><div class="sb-lbl">Shared with Me</div></div>
+    <div class="sb-sec" id="sec-pub"><div class="sb-lbl">&#127757; Public</div></div>
+    <div class="sb-sec" id="sec-shared"><div class="sb-lbl">&#128101; Shared with Me</div></div>
     <button class="btn-newlist" id="btn-newlist">&#43; New List</button>
     <div class="sb-footer">
       <div class="sb-user" id="sb-user-btn"><div class="u-av" id="sb-avatar"></div><div class="u-info"><div class="u-name" id="sb-name">Loading...</div><div class="u-role" id="sb-role">User</div></div></div>
@@ -446,17 +448,53 @@ async function loadLists(){
   if(lists.length>0)selectList(lists[0]);else renderEmpty();
 }
 function buildSidebar(lists){
-  currentLists=lists; // store for ownership checks
-  var secMy=document.getElementById('sec-my');
-  var secPriv=document.getElementById('sec-priv');
-  secMy.querySelectorAll('.li').forEach(function(e){e.remove();});
-  secPriv.querySelectorAll('.li').forEach(function(e){e.remove();});
-  lists.forEach(function(list){
-    var isOwn=list.owner_id===currentUser.id;
-    var isPrivate=list.privacy==='private';
-    var sec=(isPrivate&&isOwn)?secPriv:secMy;
-    sec.appendChild(makeSidebarItem(list));
+  currentLists = lists;
+
+  // Clear all sections
+  ['sec-own','sec-priv','sec-pub','sec-shared'].forEach(function(id){
+    var sec = document.getElementById(id);
+    if(sec) sec.querySelectorAll('.li').forEach(function(e){e.remove();});
   });
+
+  var hasOwn=false, hasPriv=false, hasPub=false, hasShared=false;
+
+  lists.forEach(function(list){
+    var isOwn = list.owner_id === currentUser.id;
+
+    if(isOwn && list.privacy === 'private'){
+      // My private lists
+      document.getElementById('sec-priv').appendChild(makeSidebarItem(list));
+      hasPriv = true;
+    } else if(isOwn && list.privacy === 'public'){
+      // My public lists
+      document.getElementById('sec-own').appendChild(makeSidebarItem(list));
+      hasOwn = true;
+    } else if(isOwn && list.privacy === 'shared'){
+      // My shared lists
+      document.getElementById('sec-own').appendChild(makeSidebarItem(list));
+      hasOwn = true;
+    } else if(!isOwn && list.privacy === 'public'){
+      // Public lists from others
+      document.getElementById('sec-pub').appendChild(makeSidebarItem(list));
+      hasPub = true;
+    } else if(!isOwn && list.privacy === 'shared'){
+      // Shared with me by others
+      document.getElementById('sec-shared').appendChild(makeSidebarItem(list));
+      hasShared = true;
+    }
+  });
+
+  // Show/hide section headers based on content
+  toggleSection('sec-own',    hasOwn);
+  toggleSection('sec-priv',   hasPriv);
+  toggleSection('sec-pub',    hasPub);
+  toggleSection('sec-shared', hasShared);
+}
+
+function toggleSection(id, show){
+  var sec = document.getElementById(id);
+  if(!sec) return;
+  sec.style.display = show ? 'block' : 'none';
 }
 function makeSidebarItem(list){
   var item=document.createElement('div');
@@ -594,7 +632,9 @@ async function createList(){
   var{data,error}=await sb.from('lists').insert({owner_id:currentUser.id,title:n,description:document.getElementById('nl-desc').value.trim(),color:color,privacy:privacy}).select().single();
   if(error){toast('Error: '+error.message);return;}
   var item=makeSidebarItem(data);
-  document.getElementById(privacy==='private'?'sec-priv':'sec-my').appendChild(item);
+  var targetSec = privacy==='private' ? 'sec-priv' : 'sec-own';
+  var secEl = document.getElementById(targetSec);
+  if(secEl){ secEl.appendChild(item); secEl.style.display='block'; }
   document.getElementById('nl-name').value='';document.getElementById('nl-desc').value='';
   closeM('newlist');selectList(data);toast('"'+n+'" created!');
 }
