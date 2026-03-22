@@ -312,7 +312,32 @@ body { font-family: 'DM Sans', sans-serif; background: #1A1410; color: #F5EFE0; 
 
 <div class="moverlay" id="m-addplace"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Add a Place</div><div class="msub">Search Google Maps</div></div><button class="mclose" id="close-addplace">&#10005;</button></div><div class="mbody"><div class="fg" style="position:relative"><label class="flbl">Search Google Maps</label><div class="places-search-wrap"><span class="places-search-icon">&#128269;</span><input class="finput places-search-input" id="ap-search" placeholder="e.g. Eiffel Tower, Paris..." autocomplete="off"><button class="places-clear-btn" id="ap-clear" style="display:none">&#10005;</button></div><div class="places-dropdown" id="places-dropdown"></div></div><div class="place-preview" id="place-preview" style="display:none"><div class="place-preview-img" id="pp-img"><div class="place-preview-img-fallback">&#128205;</div></div><div class="place-preview-body"><div class="place-preview-name" id="pp-name"></div><div class="place-preview-addr" id="pp-addr"></div><div class="place-preview-meta"><span class="place-preview-type" id="pp-type"></span><span id="pp-rating"></span></div><a class="place-preview-gmaps" id="pp-gmaps" target="_blank" rel="noopener">&#128506; View on Google Maps</a></div></div><div id="ap-extra" style="display:none"><div class="fg"><label class="flbl">Category</label><select class="fsel" id="ap-cat"><option>Food and Drink</option><option>Culture and Sights</option><option>Nature and Parks</option><option>Shopping</option><option>Accommodation</option><option>Entertainment</option></select></div><div class="fg"><label class="flbl">Your Note</label><textarea class="ftarea" id="ap-note" placeholder="Tips, memories..."></textarea></div><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:4px"><input type="checkbox" id="ap-vis" style="accent-color:#4A7C59;width:15px;height:15px"> Mark as visited</label></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-addplace">Cancel</button><button class="btn btn-p" id="submit-addplace" disabled style="opacity:.45">Add Place</button></div></div></div>
 
-<div class="moverlay" id="m-share"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Share List</div><div class="msub">Invite friends to collaborate</div></div><button class="mclose" id="close-share">&#10005;</button></div><div class="mbody"><div class="fg"><label class="flbl">Share Link</label><div class="sl-box"><input class="sl-input" id="sharelink" value="Loading..." readonly><button class="btn btn-s" id="btn-copylink">Copy</button></div></div><div class="fg"><label class="flbl">Invite by Email</label><div class="inv-row"><input class="finput" id="inv-email" placeholder="friend@gmail.com"><button class="btn btn-p" id="btn-invite">Invite</button></div></div><div class="inv-list" id="inv-list"></div></div><div class="mfoot"><button class="btn btn-p" id="done-share">Done</button></div></div></div>
+<div class="moverlay" id="m-share"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Share List</div><div class="msub">Invite friends to collaborate</div></div><button class="mclose" id="close-share">&#10005;</button></div><div class="mbody">
+
+  <!-- Share link -->
+  <div class="fg">
+    <label class="flbl">Share Link</label>
+    <div class="sl-box"><input class="sl-input" id="sharelink" value="Generating..." readonly><button class="btn btn-p" id="btn-copylink">&#128203; Copy</button></div>
+    <div style="font-size:12px;color:#8B7D6B;margin-top:7px;line-height:1.6">
+      &#128161; Copy this link and send it to your friends via WhatsApp, iMessage, or email. Anyone with the link can view and add places to this list.
+    </div>
+  </div>
+
+  <!-- Share via buttons -->
+  <div class="fg">
+    <label class="flbl">Share via</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-s" id="btn-share-whatsapp" style="flex:1;justify-content:center;gap:6px">&#128172; WhatsApp</button>
+      <button class="btn btn-s" id="btn-share-native" style="flex:1;justify-content:center;gap:6px">&#8679; More Apps</button>
+    </div>
+  </div>
+
+  <!-- Privacy reminder -->
+  <div id="share-privacy-note" style="background:rgba(74,124,89,.08);border:1px solid rgba(74,124,89,.2);border-radius:10px;padding:11px 13px;font-size:12px;color:#3D3128;line-height:1.6">
+    <strong>&#128101; This list is shared</strong> — anyone with the link can see and add places.
+  </div>
+
+</div><div class="mfoot"><button class="btn btn-p" id="done-share">Done</button></div></div></div>
 
 <div class="moverlay" id="m-detail"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl" id="det-title">Place</div><div class="msub" id="det-addr"></div></div><button class="mclose" id="close-detail">&#10005;</button></div><div class="mbody"><div class="det-img" id="det-img"></div><div class="mapfake" id="det-maplink"><svg viewBox="0 0 560 130" preserveAspectRatio="xMidYMid slice"><rect width="560" height="130" fill="#E8E0D0"/><path d="M0,55 Q150,35 300,65 Q450,95 560,55" stroke="#D4C9B0" stroke-width="16" fill="none"/><path d="M0,95 Q100,85 200,100 Q350,118 500,95 L560,102" stroke="#D4C9B0" stroke-width="10" fill="none"/><rect x="50" y="18" width="50" height="30" rx="3" fill="#C8BDAA"/><rect x="240" y="28" width="65" height="40" rx="3" fill="#C8BDAA"/><rect x="380" y="50" width="55" height="34" rx="3" fill="#C8BDAA"/></svg><div class="mapfake-ov"><button class="mapbtn">&#129517; Navigate</button></div></div><div class="fg"><label class="flbl">Group Notes</label><div class="notes-list" id="det-notes"></div><div style="display:flex;gap:7px"><input class="finput" id="note-input" placeholder="Add your note..." style="flex:1"><button class="btn btn-p" id="btn-addnote">Add</button></div></div></div><div class="mfoot"><button class="btn btn-s" id="btn-markvisited">&#10003; Mark Visited</button><button class="btn btn-p" id="btn-navigate">&#129517; Navigate</button></div></div></div>
 
@@ -619,22 +644,26 @@ function askDeletePlace(place){
 }
 
 // INVITE
-async function invitePerson(){
-  var el=document.getElementById('inv-email');
-  var email=el?el.value.trim():'';
-  if(!email){toast('Please enter an email address');return;}
-  if(!currentListId){toast('No list selected');return;}
-  // Look up user by email in profiles
-  var{data:profiles}=await sb.from('profiles').select('id,name').ilike('id','%');
-  // Try to find user in auth - look up by checking profiles
-  // For now add them to list_members by finding their profile
-  var{data:authUsers}=await sb.rpc('get_user_by_email',{email_input:email}).catch(function(){return{data:null};});
-  var init=email[0].toUpperCase();
-  document.getElementById('inv-list').insertAdjacentHTML('beforeend',
-    '<div class="inv-person"><div class="u-av" style="width:26px;height:26px;font-size:10px">'+init+'</div>'+
-    '<span class="inv-name">'+email+'</span><span class="inv-role">Can edit</span></div>');
-  el.value='';
-  toast('Invite sent! They can access this list when they sign in.');
+function shareViaWhatsApp(){
+  var link = BASE_URL + '/?list=' + currentListId;
+  var listTitle = document.getElementById('listtitle').textContent || 'my travel list';
+  var msg = 'Join my Wanderlist "' + listTitle + '" and add places! ' + link;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function shareViaNative(){
+  var link = BASE_URL + '/?list=' + currentListId;
+  var listTitle = document.getElementById('listtitle').textContent || 'my travel list';
+  if(navigator.share){
+    navigator.share({
+      title: 'Wanderlist - ' + listTitle,
+      text: 'Join my travel list and add places!',
+      url: link
+    }).catch(function(){});
+  } else {
+    // Fallback - just copy the link
+    copyLink();
+  }
 }
 
 // ADMIN
@@ -689,13 +718,49 @@ function openM(id){
     if(shareInput){
       shareInput.value=BASE_URL+'/?list='+currentListId;
     }
+    // Update privacy note based on list privacy setting
+    var note=document.getElementById('share-privacy-note');
+    if(note&&currentLists){
+      var list=currentLists.find(function(l){return l.id===currentListId;});
+      if(list){
+        if(list.privacy==='private'){
+          note.innerHTML='<strong>&#128274; This list is private</strong> — change it to Shared or Public so others can view it.';
+          note.style.background='rgba(196,98,45,.08)';
+          note.style.border='1px solid rgba(196,98,45,.2)';
+        } else if(list.privacy==='public'){
+          note.innerHTML='<strong>&#127757; This list is public</strong> — anyone with the link can see and add places.';
+          note.style.background='rgba(45,107,140,.08)';
+          note.style.border='1px solid rgba(45,107,140,.2)';
+        } else {
+          note.innerHTML='<strong>&#128101; This list is shared</strong> — anyone with the link can see and add places.';
+          note.style.background='rgba(74,124,89,.08)';
+          note.style.border='1px solid rgba(74,124,89,.2)';
+        }
+      }
+    }
   }
 }
 function closeM(id){var el=document.getElementById('m-'+id);if(el)el.classList.remove('on');}
 document.querySelectorAll('.moverlay').forEach(function(el){el.addEventListener('click',function(e){if(e.target===el)el.classList.remove('on');});});
 
 // HELPERS
-function copyLink(){navigator.clipboard&&navigator.clipboard.writeText(BASE_URL+'/?list='+currentListId).catch(function(){});toast('Link copied!');}
+function copyLink(){
+  var link = BASE_URL + '/?list=' + currentListId;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(link).then(function(){
+      toast('&#10003; Link copied to clipboard!');
+    }).catch(function(){
+      // Fallback for older browsers
+      var inp = document.getElementById('sharelink');
+      if(inp){ inp.select(); document.execCommand('copy'); }
+      toast('&#10003; Link copied!');
+    });
+  } else {
+    var inp = document.getElementById('sharelink');
+    if(inp){ inp.select(); document.execCommand('copy'); }
+    toast('&#10003; Link copied!');
+  }
+}
 function navTo(q,url){window.open(url||('https://www.google.com/maps/search/'+encodeURIComponent(q)),'_blank');}
 function navPlace(){if(currentPlace)navTo(currentPlace.name+' '+(currentPlace.address||''),currentPlace.maps_url);}
 function openMapView(){var names=[];document.querySelectorAll('.pcard-name').forEach(function(el){names.push(el.textContent);});window.open('https://www.google.com/maps/search/'+encodeURIComponent(names.join('+')||'travel places'),'_blank');}
@@ -743,8 +808,9 @@ on('cancel-addplace','click',function(){closeM('addplace');clearPlaceSearch();})
 on('submit-addplace','click',addPlace);
 on('close-share','click',function(){closeM('share');});
 on('done-share','click',function(){closeM('share');toast('Saved');});
-on('btn-copylink','click',copyLink);
-on('btn-invite','click',invitePerson);
+on('btn-copylink',      'click', copyLink);
+on('btn-share-whatsapp','click', shareViaWhatsApp);
+on('btn-share-native',  'click', shareViaNative);
 on('close-detail','click',function(){closeM('detail');});
 on('btn-addnote','click',addNote);
 on('btn-markvisited','click',markVisited);
