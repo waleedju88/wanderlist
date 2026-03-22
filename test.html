@@ -1,0 +1,92 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Button Test</title>
+<style>
+body { background: #1a1410; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+.card { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 40px; width: 320px; text-align: center; }
+h2 { color: white; margin-bottom: 24px; }
+input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 16px; box-sizing: border-box; }
+button { width: 100%; padding: 14px; border-radius: 8px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+.btn-main { background: #C4622D; color: white; }
+.btn-alt  { background: rgba(255,255,255,0.15); color: white; }
+#msg { color: #7EAF8E; margin-top: 16px; font-size: 14px; min-height: 20px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Wanderlist Login</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="pass" placeholder="Password">
+  <button class="btn-main" id="signinBtn">Sign In</button>
+  <button class="btn-alt" id="signupBtn">Sign Up</button>
+  <button class="btn-alt" id="googleBtn">Continue with Google</button>
+  <div id="msg">Tap a button to test</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SUPABASE_URL  = 'https://doyforyhqdcpnuxcrxvr.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRveWZvcnlocWRjcG51eGNyeHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjE5MzcsImV4cCI6MjA4OTQzNzkzN30.H4Q8gzdIr0YS47kNUPQUijZL1GoEVnA-CJr3PmKiF8U';
+
+var sb = null;
+var msg = document.getElementById('msg');
+
+function show(text, color) {
+  msg.textContent = text;
+  msg.style.color = color || '#7EAF8E';
+}
+
+// Init Supabase
+try {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  show('Supabase connected. Tap a button.');
+} catch(e) {
+  show('Supabase error: ' + e.message, '#ff6b6b');
+}
+
+// Sign In
+document.getElementById('signinBtn').addEventListener('click', async function() {
+  var email = document.getElementById('email').value.trim();
+  var pass  = document.getElementById('pass').value;
+  if (!email || !pass) { show('Enter email and password first', '#ffaa00'); return; }
+  show('Signing in...', '#aaa');
+  try {
+    var res = await sb.auth.signInWithPassword({ email: email, password: pass });
+    if (res.error) { show('Error: ' + res.error.message, '#ff6b6b'); }
+    else { show('Signed in as ' + res.data.user.email, '#7EAF8E'); }
+  } catch(e) { show('Error: ' + e.message, '#ff6b6b'); }
+});
+
+// Sign Up
+document.getElementById('signupBtn').addEventListener('click', async function() {
+  var email = document.getElementById('email').value.trim();
+  var pass  = document.getElementById('pass').value;
+  if (!email || !pass) { show('Enter email and password first', '#ffaa00'); return; }
+  if (pass.length < 6) { show('Password must be at least 6 characters', '#ffaa00'); return; }
+  show('Creating account...', '#aaa');
+  try {
+    var res = await sb.auth.signUp({ email: email, password: pass });
+    if (res.error) { show('Error: ' + res.error.message, '#ff6b6b'); }
+    else { show('Account created! Check your email or sign in now.', '#7EAF8E'); }
+  } catch(e) { show('Error: ' + e.message, '#ff6b6b'); }
+});
+
+// Google
+document.getElementById('googleBtn').addEventListener('click', async function() {
+  show('Opening Google...', '#aaa');
+  try {
+    var res = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href }
+    });
+    if (res.error) { show('Error: ' + res.error.message, '#ff6b6b'); }
+  } catch(e) { show('Error: ' + e.message, '#ff6b6b'); }
+});
+
+show('Ready. Tap a button to test.');
+</script>
+</body>
+</html>
