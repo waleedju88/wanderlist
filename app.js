@@ -1,4 +1,5 @@
 // Wanderlist - app.js
+// Wanderlist - app.js
 /* ═══════════════════════════════════════════════════════
    SUPABASE CONFIG
    -------------------------------------------------------
@@ -88,7 +89,8 @@
 var SUPABASE_URL  = 'https://doyforyhqdcpnuxcrxvr.supabase.co';
 var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRveWZvcnlocWRjcG51eGNyeHZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjE5MzcsImV4cCI6MjA4OTQzNzkzN30.H4Q8gzdIr0YS47kNUPQUijZL1GoEVnA-CJr3PmKiF8U';
 
-/* ─── Google Maps / Places API Key ───────────────────────────
+/* ─── Deployed to: https://waleedju88.github.io/wanderlist ───
+   Google Maps / Places API Key ───────────────────────────
    Get a free key at: https://console.cloud.google.com
    → APIs & Services → Credentials → Create API Key
    Enable these two APIs in your project:
@@ -185,7 +187,7 @@ async function signUpEmail(){
 
 async function signInGoogle(){
   if(!isConfigured){ enterDemoMode(); return; }
-  var res = await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}});
+  var res = await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: 'https://waleedju88.github.io/wanderlist/'}});
   if(res.error) showAuthErr(res.error.message);
 }
 
@@ -199,7 +201,7 @@ function showForgot(){
   var email = document.getElementById('login-email').value.trim();
   if(!email){ showAuthErr('Enter your email above first'); return; }
   if(!isConfigured){ toast('Reset email sent (demo mode)'); return; }
-  sb.auth.resetPasswordForEmail(email).then(function(){
+  sb.auth.resetPasswordForEmail(email, {redirectTo: 'https://waleedju88.github.io/wanderlist/'}).then(function(){
     toast('Password reset email sent!');
   });
 }
@@ -1110,7 +1112,7 @@ document.querySelectorAll('.moverlay').forEach(function(el){
   el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('on'); });
 });
 function copyLink(){
-  var link = 'wanderlist.app/list/' + currentListId;
+  var link = 'https://waleedju88.github.io/wanderlist/?list=' + currentListId;
   if(navigator.clipboard) navigator.clipboard.writeText(link).catch(function(){});
   document.getElementById('sharelink').value = link;
   toast('Link copied!');
@@ -1222,3 +1224,83 @@ async function boot(){
     showPage('login');
   }
 }
+// ── WIRE UP ALL BUTTONS VIA addEventListener (no inline onclick) ──
+document.addEventListener('DOMContentLoaded', function runWire(){
+(function wireButtons(){
+  function on(id, ev, fn){ var el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
+  function onAll(sel, ev, fn){ document.querySelectorAll(sel).forEach(function(el){ el.addEventListener(ev,fn); }); }
+
+  // Auth tabs
+  on('tab-login',  'click', function(){ showAuthTab('login'); });
+  on('tab-signup', 'click', function(){ showAuthTab('signup'); });
+
+  // Auth buttons
+  on('btn-signin',       'click', signInEmail);
+  on('btn-signup',       'click', signUpEmail);
+  on('btn-google-signin','click', signInGoogle);
+  on('btn-google-signup','click', signInGoogle);
+  on('btn-forgot',       'click', showForgot);
+
+  // Enter key on inputs
+  on('login-password',  'keydown', function(e){ if(e.key==='Enter') signInEmail(); });
+  on('signup-password', 'keydown', function(e){ if(e.key==='Enter') signUpEmail(); });
+
+  // App buttons
+  on('btn-ham',       'click', toggleSB);
+  on('btn-newlist',   'click', function(){ openM('newlist'); });
+  on('btn-add-top',   'click', function(){ openM('addplace'); });
+  on('btn-share-top', 'click', function(){ openM('share'); });
+  on('btn-signout',   'click', signOut);
+  on('sb-user-btn',   'click', toggleAdminPanel);
+  on('backdrop',      'click', closeMobile);
+
+  // Bottom nav
+  on('bnav-lists', 'click', function(){ toggleSB(); setNav(document.getElementById('bnav-lists')); });
+  on('bnav-map',   'click', function(){ openMapView(); setNav(document.getElementById('bnav-map')); });
+  on('bnav-add',   'click', function(){ openM('addplace'); setNav(document.getElementById('bnav-add')); });
+  on('bnav-share', 'click', function(){ openM('share'); setNav(document.getElementById('bnav-share')); });
+
+  // View tabs
+  on('btn-view-grid', 'click', function(){ setView('grid', document.getElementById('btn-view-grid')); });
+  on('btn-view-map',  'click', function(){ setView('map',  document.getElementById('btn-view-map')); });
+
+  // Modal close buttons
+  on('close-newlist',  'click', function(){ closeM('newlist'); });
+  on('cancel-newlist', 'click', function(){ closeM('newlist'); });
+  on('submit-newlist', 'click', createList);
+  on('close-addplace', 'click', function(){ closeM('addplace'); clearPlaceSearch(); });
+  on('cancel-addplace','click', function(){ closeM('addplace'); clearPlaceSearch(); });
+  on('submit-addplace','click', addPlace);
+  on('close-share',    'click', function(){ closeM('share'); });
+  on('done-share',     'click', function(){ closeM('share'); toast('Saved'); });
+  on('btn-copylink',   'click', copyLink);
+  on('btn-invite',     'click', invitePerson);
+  on('close-detail',   'click', function(){ closeM('detail'); });
+  on('btn-addnote',    'click', addNote);
+  on('btn-markvisited','click', markVisited);
+  on('btn-navigate',   'click', navPlace);
+  on('det-maplink',    'click', navPlace);
+  on('close-admin',    'click', function(){ closeM('admin'); });
+  on('confirm-cancel', 'click', dismissConfirm);
+  on('confirm-ok',     'click', confirmOk);
+  on('ap-clear',       'click', clearPlaceSearch);
+
+  // Swatches
+  onAll('#nl-swatches .swatch', 'click', function(){ pickSwatch(this); });
+
+  // Privacy options
+  onAll('#nl-priv .popt', 'click', function(){ pickPriv(this, this.getAttribute('data-priv')); });
+
+  // Places search
+  on('ap-search', 'input', onPlacesSearchInput);
+  on('btn-close-banner', 'click', function(){
+    var b = document.getElementById('setup-banner');
+    if(b) b.style.display = 'none';
+  });
+
+  // Modal overlay click to close
+  document.querySelectorAll('.moverlay').forEach(function(el){
+    el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('on'); });
+  });
+})();
+}); // end DOMContentLoaded runWire
