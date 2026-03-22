@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Wanderlist</title>
+<script>
+// GitHub Pages SPA redirect
+// Redirects all 404s back to the main app
+var path = window.location.pathname;
+var query = window.location.search;
+var hash = window.location.hash;
+var base = '/wanderlist';
+// Redirect to index with the path as a query param
+window.location.replace(
+  window.location.origin + base + '/?p=' +
+  encodeURIComponent(path.slice(base.length) + query + hash)
+);
+</script>
+</head>
+<body>Redirecting...</body>
+</html>
