@@ -31,6 +31,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--ink)}
   background:radial-gradient(ellipse at 30% 20%,rgba(196,98,45,.18) 0%,transparent 60%),
              radial-gradient(ellipse at 75% 80%,rgba(45,107,140,.15) 0%,transparent 55%);
   pointer-events:none;
+  z-index:0;
 }
 .login-card{
   background:rgba(253,250,244,.06);
@@ -39,7 +40,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--ink)}
   border-radius:24px;
   padding:40px 36px;
   width:100%;max-width:400px;
-  position:relative;z-index:1;
+  position:relative;z-index:100;
 }
 .login-logo{text-align:center;margin-bottom:32px}
 .login-logo h1{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--sand);letter-spacing:-.02em}
@@ -47,7 +48,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--ink)}
 .login-logo p{font-size:12px;color:var(--muted-light);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
 
 .tab-row{display:flex;background:rgba(255,255,255,.06);border-radius:10px;padding:3px;margin-bottom:24px}
-.tab-btn{flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:var(--muted-light);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.tab-btn{flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:var(--muted-light);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;position:relative;z-index:101;touch-action:manipulation;-webkit-appearance:none;}
 .tab-btn.on{background:rgba(255,255,255,.12);color:var(--sand)}
 
 .form-group{margin-bottom:14px}
@@ -56,7 +57,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--ink)}
 .form-input::placeholder{color:var(--muted)}
 .form-input:focus{border-color:var(--terra-light)}
 
-.btn-full{width:100%;padding:13px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.btn-full{width:100%;padding:13px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:10px;position:relative;z-index:101;-webkit-appearance:none;touch-action:manipulation;}
 .btn-terra{background:var(--terra);color:#fff}
 .btn-terra:hover{background:#B0561F;transform:translateY(-1px)}
 .btn-terra:active{transform:scale(.98)}
