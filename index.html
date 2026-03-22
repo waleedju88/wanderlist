@@ -27,9 +27,7 @@ html,body{height:100%;width:100%;overflow:hidden;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;padding:0;overflow:hidden}
 
 /* ═══════════════ PAGES ═══════════════ */
-.page{display:none;position:fixed;inset:0;z-index:10}
-.page.active{display:flex}
-/* LOGIN PAGE - covers full screen */
+/* LOGIN PAGE */
 #page-login{
   display:flex;
   position:fixed;
@@ -41,22 +39,23 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
   flex-direction:column;
   padding:24px;
 }
-#page-login.hidden-by-js{display:none !important;}
-#page-login::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 30% 20%,rgba(196,98,45,.18) 0%,transparent 60%),
-             radial-gradient(ellipse at 75% 80%,rgba(45,107,140,.15) 0%,transparent 55%);
-  pointer-events:none;
-  z-index:0;
+/* APP PAGE */
+#page-app{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10;
+  flex-direction:row;
 }
+
 .login-card{
-  background:rgba(253,250,244,.06);
-  border:1px solid rgba(253,250,244,.1);
-  backdrop-filter:blur(20px);
+  background:rgba(40,28,20,0.92);
+  border:1px solid rgba(255,255,255,.12);
   border-radius:24px;
   padding:40px 36px;
   width:100%;max-width:400px;
-  position:relative;z-index:100;
+  position:relative;
+  z-index:100;
 }
 .login-logo{text-align:center;margin-bottom:32px}
 .login-logo h1{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--sand);letter-spacing:-.02em}
@@ -64,7 +63,7 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
 .login-logo p{font-size:12px;color:var(--muted-light);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
 
 .tab-row{display:flex;background:rgba(255,255,255,.06);border-radius:10px;padding:3px;margin-bottom:24px}
-.tab-btn{flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:var(--muted-light);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;position:relative;z-index:101;touch-action:manipulation;-webkit-appearance:none;}
+.tab-btn{flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:var(--muted-light);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;position:relative;z-index:200;touch-action:manipulation;-webkit-appearance:none;}
 .tab-btn.on{background:rgba(255,255,255,.12);color:var(--sand)}
 
 .form-group{margin-bottom:14px}
@@ -73,7 +72,7 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
 .form-input::placeholder{color:var(--muted)}
 .form-input:focus{border-color:var(--terra-light)}
 
-.btn-full{width:100%;padding:13px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:10px;position:relative;z-index:101;-webkit-appearance:none;touch-action:manipulation;}
+.btn-full{width:100%;padding:13px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;position:relative;z-index:200;-webkit-appearance:none;touch-action:manipulation;display:block;}
 .btn-terra{background:var(--terra);color:#fff}
 .btn-terra:hover{background:#B0561F;transform:translateY(-1px)}
 .btn-terra:active{transform:scale(.98)}
@@ -521,11 +520,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
 </style>
 </head>
 <body>
-<!-- SETUP BANNER -->
-<div id="setup-banner" style="display:none">
-  &#9888;&#65039; <strong>Setup required:</strong> Configure Supabase credentials in the script.
-  <button class="close-banner" id="btn-close-banner">&#10005;</button>
-</div>
 
 <!-- LOGIN PAGE -->
 <div id="page-login">
@@ -539,7 +533,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
       <button class="tab-btn" id="tab-signup">Sign Up</button>
     </div>
     <div id="auth-err" class="auth-err"></div>
-    <!-- Login form -->
     <div id="form-login">
       <div class="form-group">
         <label class="form-label">Email</label>
@@ -557,7 +550,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
       </button>
       <div class="forgot-link"><a id="btn-forgot">Forgot password?</a></div>
     </div>
-    <!-- Signup form -->
     <div id="form-signup" style="display:none">
       <div class="form-group">
         <label class="form-label">Full Name</label>
@@ -581,15 +573,12 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
   </div>
 </div>
 
-<!-- MAIN APP PAGE -->
-<div id="page-app" style="display:none;position:fixed;inset:0;z-index:10;">
+<!-- APP PAGE -->
+<div id="page-app" style="display:none">
 <div class="app">
   <div class="backdrop" id="backdrop"></div>
   <aside class="sidebar" id="sidebar">
-    <div class="sb-logo">
-      <h1>Wander<span>list</span></h1>
-      <p>Your travel companion</p>
-    </div>
+    <div class="sb-logo"><h1>Wander<span>list</span></h1><p>Your travel companion</p></div>
     <div class="sb-sec" id="sec-my"><div class="sb-lbl">My Lists</div></div>
     <div class="sb-sec" id="sec-priv"><div class="sb-lbl">&#128274; Private</div></div>
     <div class="sb-sec" id="sec-shared"><div class="sb-lbl">Shared with Me</div></div>
@@ -635,133 +624,20 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--ink);margin:0;
 </div>
 
 <!-- MODALS -->
-<div class="moverlay" id="m-newlist">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mhdr"><div><div class="mttl">Create New List</div><div class="msub">Organise your destinations</div></div><button class="mclose" id="close-newlist">&#10005;</button></div>
-    <div class="mbody">
-      <div class="fg"><label class="flbl">List Name</label><input class="finput" id="nl-name" placeholder="e.g. Tokyo Foodie Tour"></div>
-      <div class="fg"><label class="flbl">Description</label><input class="finput" id="nl-desc" placeholder="What is this trip about?"></div>
-      <div class="fg"><label class="flbl">Colour</label>
-        <div class="swatches" id="nl-swatches">
-          <div class="swatch on" style="background:#C4622D"></div>
-          <div class="swatch" style="background:#2D6B8C"></div>
-          <div class="swatch" style="background:#4A7C59"></div>
-          <div class="swatch" style="background:#8B4513"></div>
-          <div class="swatch" style="background:#6B4C9A"></div>
-          <div class="swatch" style="background:#C44B6B"></div>
-          <div class="swatch" style="background:#2D7A6B"></div>
-        </div>
-      </div>
-      <div class="fg"><label class="flbl">Privacy</label>
-        <div class="priv-opts" id="nl-priv">
-          <div class="popt sp" data-priv="p"><div class="popt-icon">&#128274;</div><div class="popt-lbl">Private</div></div>
-          <div class="popt" data-priv="s"><div class="popt-icon">&#128101;</div><div class="popt-lbl">Shared</div></div>
-          <div class="popt" data-priv="pub"><div class="popt-icon">&#127757;</div><div class="popt-lbl">Public</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="mfoot"><button class="btn btn-s" id="cancel-newlist">Cancel</button><button class="btn btn-p" id="submit-newlist">Create List</button></div>
-  </div>
-</div>
+<div class="moverlay" id="m-newlist"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Create New List</div><div class="msub">Organise your destinations</div></div><button class="mclose" id="close-newlist">&#10005;</button></div><div class="mbody"><div class="fg"><label class="flbl">List Name</label><input class="finput" id="nl-name" placeholder="e.g. Tokyo Foodie Tour"></div><div class="fg"><label class="flbl">Description</label><input class="finput" id="nl-desc" placeholder="What is this trip about?"></div><div class="fg"><label class="flbl">Colour</label><div class="swatches" id="nl-swatches"><div class="swatch on" style="background:#C4622D"></div><div class="swatch" style="background:#2D6B8C"></div><div class="swatch" style="background:#4A7C59"></div><div class="swatch" style="background:#8B4513"></div><div class="swatch" style="background:#6B4C9A"></div><div class="swatch" style="background:#C44B6B"></div><div class="swatch" style="background:#2D7A6B"></div></div></div><div class="fg"><label class="flbl">Privacy</label><div class="priv-opts" id="nl-priv"><div class="popt sp" data-priv="p"><div class="popt-icon">&#128274;</div><div class="popt-lbl">Private</div></div><div class="popt" data-priv="s"><div class="popt-icon">&#128101;</div><div class="popt-lbl">Shared</div></div><div class="popt" data-priv="pub"><div class="popt-icon">&#127757;</div><div class="popt-lbl">Public</div></div></div></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-newlist">Cancel</button><button class="btn btn-p" id="submit-newlist">Create List</button></div></div></div>
 
-<div class="moverlay" id="m-addplace">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mhdr"><div><div class="mttl">Add a Place</div><div class="msub">Search Google Maps</div></div><button class="mclose" id="close-addplace">&#10005;</button></div>
-    <div class="mbody">
-      <div class="fg" style="position:relative">
-        <label class="flbl">Search Google Maps</label>
-        <div class="places-search-wrap">
-          <span class="places-search-icon">&#128269;</span>
-          <input class="finput places-search-input" id="ap-search" placeholder="e.g. Eiffel Tower, Paris..." autocomplete="off">
-          <button class="places-clear-btn" id="ap-clear" style="display:none">&#10005;</button>
-        </div>
-        <div class="places-dropdown" id="places-dropdown"></div>
-      </div>
-      <div class="place-preview" id="place-preview" style="display:none">
-        <div class="place-preview-img" id="pp-img"><div class="place-preview-img-fallback">&#128205;</div></div>
-        <div class="place-preview-body">
-          <div class="place-preview-name" id="pp-name"></div>
-          <div class="place-preview-addr" id="pp-addr"></div>
-          <div class="place-preview-meta"><span class="place-preview-type" id="pp-type"></span><span class="place-preview-rating" id="pp-rating"></span></div>
-          <a class="place-preview-gmaps" id="pp-gmaps" target="_blank" rel="noopener">&#128506; View on Google Maps</a>
-        </div>
-      </div>
-      <div id="ap-extra" style="display:none">
-        <div class="fg"><label class="flbl">Category</label>
-          <select class="fsel" id="ap-cat"><option>Food and Drink</option><option>Culture and Sights</option><option>Nature and Parks</option><option>Shopping</option><option>Accommodation</option><option>Entertainment</option></select>
-        </div>
-        <div class="fg"><label class="flbl">Your Note</label><textarea class="ftarea" id="ap-note" placeholder="Tips, memories..."></textarea></div>
-        <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:4px"><input type="checkbox" id="ap-vis" style="accent-color:var(--sage);width:15px;height:15px"> Mark as visited</label>
-      </div>
-    </div>
-    <div class="mfoot"><button class="btn btn-s" id="cancel-addplace">Cancel</button><button class="btn btn-p" id="submit-addplace" disabled style="opacity:.45">Add Place</button></div>
-  </div>
-</div>
+<div class="moverlay" id="m-addplace"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Add a Place</div><div class="msub">Search Google Maps</div></div><button class="mclose" id="close-addplace">&#10005;</button></div><div class="mbody"><div class="fg" style="position:relative"><label class="flbl">Search Google Maps</label><div class="places-search-wrap"><span class="places-search-icon">&#128269;</span><input class="finput places-search-input" id="ap-search" placeholder="e.g. Eiffel Tower, Paris..." autocomplete="off"><button class="places-clear-btn" id="ap-clear" style="display:none">&#10005;</button></div><div class="places-dropdown" id="places-dropdown"></div></div><div class="place-preview" id="place-preview" style="display:none"><div class="place-preview-img" id="pp-img"><div class="place-preview-img-fallback">&#128205;</div></div><div class="place-preview-body"><div class="place-preview-name" id="pp-name"></div><div class="place-preview-addr" id="pp-addr"></div><div class="place-preview-meta"><span class="place-preview-type" id="pp-type"></span><span class="place-preview-rating" id="pp-rating"></span></div><a class="place-preview-gmaps" id="pp-gmaps" target="_blank" rel="noopener">&#128506; View on Google Maps</a></div></div><div id="ap-extra" style="display:none"><div class="fg"><label class="flbl">Category</label><select class="fsel" id="ap-cat"><option>Food and Drink</option><option>Culture and Sights</option><option>Nature and Parks</option><option>Shopping</option><option>Accommodation</option><option>Entertainment</option></select></div><div class="fg"><label class="flbl">Your Note</label><textarea class="ftarea" id="ap-note" placeholder="Tips, memories..."></textarea></div><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:4px"><input type="checkbox" id="ap-vis" style="accent-color:var(--sage);width:15px;height:15px"> Mark as visited</label></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-addplace">Cancel</button><button class="btn btn-p" id="submit-addplace" disabled style="opacity:.45">Add Place</button></div></div></div>
 
-<div class="moverlay" id="m-share">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mhdr"><div><div class="mttl">Share List</div><div class="msub">Invite friends to collaborate</div></div><button class="mclose" id="close-share">&#10005;</button></div>
-    <div class="mbody">
-      <div class="fg"><label class="flbl">Share Link</label><div class="sl-box"><input class="sl-input" id="sharelink" value="https://waleedju88.github.io/wanderlist/..." readonly><button class="btn btn-s" id="btn-copylink">Copy</button></div></div>
-      <div class="fg"><label class="flbl">Invite by Email</label><div class="inv-row"><input class="finput" id="inv-email" placeholder="friend@gmail.com"><button class="btn btn-p" id="btn-invite">Invite</button></div></div>
-      <div class="inv-list" id="inv-list"></div>
-    </div>
-    <div class="mfoot"><button class="btn btn-p" id="done-share">Done</button></div>
-  </div>
-</div>
+<div class="moverlay" id="m-share"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Share List</div><div class="msub">Invite friends to collaborate</div></div><button class="mclose" id="close-share">&#10005;</button></div><div class="mbody"><div class="fg"><label class="flbl">Share Link</label><div class="sl-box"><input class="sl-input" id="sharelink" value="wanderlist..." readonly><button class="btn btn-s" id="btn-copylink">Copy</button></div></div><div class="fg"><label class="flbl">Invite by Email</label><div class="inv-row"><input class="finput" id="inv-email" placeholder="friend@gmail.com"><button class="btn btn-p" id="btn-invite">Invite</button></div></div><div class="inv-list" id="inv-list"></div></div><div class="mfoot"><button class="btn btn-p" id="done-share">Done</button></div></div></div>
 
-<div class="moverlay" id="m-detail">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mhdr"><div><div class="mttl" id="det-title">Place</div><div class="msub" id="det-addr"></div></div><button class="mclose" id="close-detail">&#10005;</button></div>
-    <div class="mbody">
-      <div class="det-img" id="det-img"></div>
-      <div class="mapfake" id="det-maplink">
-        <svg viewBox="0 0 560 130" preserveAspectRatio="xMidYMid slice"><rect width="560" height="130" fill="#E8E0D0"/><path d="M0,55 Q150,35 300,65 Q450,95 560,55" stroke="#D4C9B0" stroke-width="16" fill="none"/><path d="M0,95 Q100,85 200,100 Q350,118 500,95 L560,102" stroke="#D4C9B0" stroke-width="10" fill="none"/><rect x="50" y="18" width="50" height="30" rx="3" fill="#C8BDAA"/><rect x="240" y="28" width="65" height="40" rx="3" fill="#C8BDAA"/><rect x="380" y="50" width="55" height="34" rx="3" fill="#C8BDAA"/></svg>
-        <div class="mapfake-ov"><button class="mapbtn">&#129517; Navigate with Google Maps</button></div>
-      </div>
-      <div class="fg"><label class="flbl">Group Notes</label>
-        <div class="notes-list" id="det-notes"></div>
-        <div style="display:flex;gap:7px"><input class="finput" id="note-input" placeholder="Add your note..." style="flex:1"><button class="btn btn-p" id="btn-addnote">Add</button></div>
-      </div>
-    </div>
-    <div class="mfoot"><button class="btn btn-s" id="btn-markvisited">&#10003; Mark Visited</button><button class="btn btn-p" id="btn-navigate">&#129517; Navigate</button></div>
-  </div>
-</div>
+<div class="moverlay" id="m-detail"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl" id="det-title">Place</div><div class="msub" id="det-addr"></div></div><button class="mclose" id="close-detail">&#10005;</button></div><div class="mbody"><div class="det-img" id="det-img"></div><div class="mapfake" id="det-maplink"><svg viewBox="0 0 560 130" preserveAspectRatio="xMidYMid slice"><rect width="560" height="130" fill="#E8E0D0"/><path d="M0,55 Q150,35 300,65 Q450,95 560,55" stroke="#D4C9B0" stroke-width="16" fill="none"/><path d="M0,95 Q100,85 200,100 Q350,118 500,95 L560,102" stroke="#D4C9B0" stroke-width="10" fill="none"/><rect x="50" y="18" width="50" height="30" rx="3" fill="#C8BDAA"/><rect x="240" y="28" width="65" height="40" rx="3" fill="#C8BDAA"/><rect x="380" y="50" width="55" height="34" rx="3" fill="#C8BDAA"/></svg><div class="mapfake-ov"><button class="mapbtn">&#129517; Navigate with Google Maps</button></div></div><div class="fg"><label class="flbl">Group Notes</label><div class="notes-list" id="det-notes"></div><div style="display:flex;gap:7px"><input class="finput" id="note-input" placeholder="Add your note..." style="flex:1"><button class="btn btn-p" id="btn-addnote">Add</button></div></div></div><div class="mfoot"><button class="btn btn-s" id="btn-markvisited">&#10003; Mark Visited</button><button class="btn btn-p" id="btn-navigate">&#129517; Navigate</button></div></div></div>
 
-<div class="moverlay" id="m-admin">
-  <div class="modal" style="max-height:96dvh">
-    <div class="mhandle"></div>
-    <div class="mhdr"><div><div class="mttl">Admin Dashboard</div><div class="msub">Manage users and content</div></div><button class="mclose" id="close-admin">&#10005;</button></div>
-    <div class="mbody">
-      <div class="admin-grid">
-        <div class="stat-card"><div class="stat-num" id="stat-users">-</div><div class="stat-lbl">Total Users</div></div>
-        <div class="stat-card"><div class="stat-num" id="stat-lists">-</div><div class="stat-lbl">Total Lists</div></div>
-        <div class="stat-card"><div class="stat-num" id="stat-places">-</div><div class="stat-lbl">Total Places</div></div>
-        <div class="stat-card"><div class="stat-num" id="stat-notes">-</div><div class="stat-lbl">Total Notes</div></div>
-      </div>
-      <div class="sec-hdr"><div class="sec-ttl">All Users</div></div>
-      <div class="user-table">
-        <div class="user-table-hdr"><span>Name</span><span>Joined</span><span>Role</span><span>Action</span></div>
-        <div id="admin-user-list"><div class="spinner"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="moverlay" id="m-admin"><div class="modal" style="max-height:96dvh"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Admin Dashboard</div><div class="msub">Manage users and content</div></div><button class="mclose" id="close-admin">&#10005;</button></div><div class="mbody"><div class="admin-grid"><div class="stat-card"><div class="stat-num" id="stat-users">-</div><div class="stat-lbl">Total Users</div></div><div class="stat-card"><div class="stat-num" id="stat-lists">-</div><div class="stat-lbl">Total Lists</div></div><div class="stat-card"><div class="stat-num" id="stat-places">-</div><div class="stat-lbl">Total Places</div></div><div class="stat-card"><div class="stat-num" id="stat-notes">-</div><div class="stat-lbl">Total Notes</div></div></div><div class="sec-hdr"><div class="sec-ttl">All Users</div></div><div class="user-table"><div class="user-table-hdr"><span>Name</span><span>Joined</span><span>Role</span><span>Action</span></div><div id="admin-user-list"><div class="spinner"></div></div></div></div></div></div>
 
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div class="confirm-icon" id="confirmIcon">&#128465;&#65039;</div>
-    <div class="confirm-title" id="confirmTitle">Delete?</div>
-    <div class="confirm-msg" id="confirmMsg">This cannot be undone.</div>
-    <div class="confirm-btns"><button class="btn btn-s" id="confirm-cancel">Cancel</button><button class="btn btn-danger" id="confirm-ok">Delete</button></div>
-  </div>
-</div>
+<div class="confirm-overlay" id="confirmOverlay"><div class="confirm-box"><div class="confirm-icon" id="confirmIcon">&#128465;&#65039;</div><div class="confirm-title" id="confirmTitle">Delete?</div><div class="confirm-msg" id="confirmMsg">This cannot be undone.</div><div class="confirm-btns"><button class="btn btn-s" id="confirm-cancel">Cancel</button><button class="btn btn-danger" id="confirm-ok">Delete</button></div></div></div>
 
 <div class="toast" id="toastEl"></div>
+
 <script>
 // Wanderlist - app.js
 // Wanderlist - app.js
@@ -990,23 +866,8 @@ async function onSignedIn(user){
    PAGE ROUTING
 ═══════════════════════════════════════ */
 function showPage(name){
-  // Hide all pages
-  document.querySelectorAll('.page').forEach(function(p){
-    p.classList.remove('active');
-  });
-  // Also handle the login page default-visible state
-  var loginPage = document.getElementById('page-login');
-  if(loginPage) loginPage.classList.add('hidden-by-js');
-
-  // Show the requested page
-  var target = document.getElementById('page-'+name);
-  if(target){
-    target.classList.add('active');
-    // If showing login, remove the hidden class
-    if(name === 'login'){
-      target.classList.remove('hidden-by-js');
-    }
-  }
+  document.getElementById('page-login').style.display = (name === 'login') ? 'flex' : 'none';
+  document.getElementById('page-app').style.display   = (name === 'app')   ? 'flex' : 'none';
 }
 
 /* ═══════════════════════════════════════
@@ -1912,11 +1773,7 @@ function confirmOk(){ document.getElementById('confirmOverlay').classList.remove
    BOOT
 ═══════════════════════════════════════ */
 
-// Show login page immediately — do not wait for anything
-(function showLoginImmediately(){
-  var loginPage = document.getElementById('page-login');
-  if(loginPage) loginPage.classList.add('active');
-})();
+// login shown by default in CSS
 
 // Wire up all auth buttons via JS (more reliable than inline onclick on iOS Safari)
 document.addEventListener('DOMContentLoaded', function(){
@@ -1954,15 +1811,11 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
-// Then run the full boot once DOM + scripts are ready
-document.addEventListener('DOMContentLoaded', function(){
+// Boot runs after everything is loaded
+window.addEventListener('load', function(){
   boot();
+  wireButtons();
 });
-
-// Safety fallback — if DOMContentLoaded already fired, run now
-if(document.readyState === 'complete' || document.readyState === 'interactive'){
-  setTimeout(boot, 0);
-}
 
 var bootRan = false;
 async function boot(){
@@ -1990,8 +1843,7 @@ async function boot(){
   }
 }
 // ── WIRE UP ALL BUTTONS VIA addEventListener (no inline onclick) ──
-document.addEventListener('DOMContentLoaded', function runWire(){
-(function wireButtons(){
+function wireButtons(){
   function on(id, ev, fn){ var el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
   function onAll(sel, ev, fn){ document.querySelectorAll(sel).forEach(function(el){ el.addEventListener(ev,fn); }); }
 
@@ -2067,8 +1919,7 @@ document.addEventListener('DOMContentLoaded', function runWire(){
   document.querySelectorAll('.moverlay').forEach(function(el){
     el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('on'); });
   });
-})();
-}); // end DOMContentLoaded runWire
+}
 </script>
 </body>
 </html>
