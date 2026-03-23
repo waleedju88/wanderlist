@@ -226,6 +226,12 @@ body { font-family: 'DM Sans', sans-serif; background: #1A1410; color: #F5EFE0; 
 .bnav-btn.on { color:#E8895A; }
 .bnav-btn .bi { font-size:19px; }
 .bnav-btn .bl { font-size:9px; font-family:'DM Sans',sans-serif; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+.pac-container { border-radius:12px !important; border:1.5px solid #EDE4CC !important; box-shadow:0 8px 32px rgba(26,20,16,.12) !important; font-family:'DM Sans',sans-serif !important; margin-top:4px !important; overflow:hidden !important; z-index:9999 !important; }
+.pac-item { padding:10px 14px !important; font-size:13px !important; border-top:1px solid #F5EFE0 !important; cursor:pointer !important; color:#1A1410 !important; }
+.pac-item:hover { background:#F5EFE0 !important; }
+.pac-item-query { font-size:13px !important; font-weight:600 !important; color:#1A1410 !important; }
+.pac-matched { font-weight:700 !important; color:#C4622D !important; }
+.pac-icon { display:none !important; }
 @media(max-width:680px){
   .sidebar{position:fixed;top:0;left:0;bottom:0;width:80vw;max-width:290px;transform:translateX(-100%);transition:transform .28s ease;z-index:200}
   .sidebar.open{transform:translateX(0)}
@@ -310,6 +316,30 @@ body { font-family: 'DM Sans', sans-serif; background: #1A1410; color: #F5EFE0; 
 </div>
 
 <!-- MODALS -->
+<!-- EDIT LIST MODAL -->
+<div class="moverlay" id="m-editlist"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Edit List</div><div class="msub">Update your list details</div></div><button class="mclose" id="close-editlist">&#10005;</button></div><div class="mbody">
+  <div class="fg"><label class="flbl">List Name</label><input class="finput" id="el-name" placeholder="e.g. Tokyo Foodie Tour"></div>
+  <div class="fg"><label class="flbl">Description</label><input class="finput" id="el-desc" placeholder="What is this trip about?"></div>
+  <div class="fg"><label class="flbl">Colour</label>
+    <div class="swatches" id="el-swatches">
+      <div class="swatch on" style="background:#C4622D"></div>
+      <div class="swatch" style="background:#2D6B8C"></div>
+      <div class="swatch" style="background:#4A7C59"></div>
+      <div class="swatch" style="background:#8B4513"></div>
+      <div class="swatch" style="background:#6B4C9A"></div>
+      <div class="swatch" style="background:#C44B6B"></div>
+      <div class="swatch" style="background:#2D7A6B"></div>
+    </div>
+  </div>
+  <div class="fg"><label class="flbl">Privacy</label>
+    <div class="priv-opts" id="el-priv">
+      <div class="popt sp" data-priv="p"><div class="popt-icon">&#128274;</div><div class="popt-lbl">Private</div></div>
+      <div class="popt" data-priv="s"><div class="popt-icon">&#128101;</div><div class="popt-lbl">Shared</div></div>
+      <div class="popt" data-priv="pub"><div class="popt-icon">&#127757;</div><div class="popt-lbl">Public</div></div>
+    </div>
+  </div>
+</div><div class="mfoot"><button class="btn btn-s" id="cancel-editlist">Cancel</button><button class="btn btn-p" id="submit-editlist">Save Changes</button></div></div></div>
+
 <div class="moverlay" id="m-newlist"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Create New List</div><div class="msub">Organise your destinations</div></div><button class="mclose" id="close-newlist">&#10005;</button></div><div class="mbody"><div class="fg"><label class="flbl">List Name</label><input class="finput" id="nl-name" placeholder="e.g. Tokyo Foodie Tour"></div><div class="fg"><label class="flbl">Description</label><input class="finput" id="nl-desc" placeholder="What is this trip about?"></div><div class="fg"><label class="flbl">Colour</label><div class="swatches" id="nl-swatches"><div class="swatch on" style="background:#C4622D"></div><div class="swatch" style="background:#2D6B8C"></div><div class="swatch" style="background:#4A7C59"></div><div class="swatch" style="background:#8B4513"></div><div class="swatch" style="background:#6B4C9A"></div><div class="swatch" style="background:#C44B6B"></div><div class="swatch" style="background:#2D7A6B"></div></div></div><div class="fg"><label class="flbl">Privacy</label><div class="priv-opts" id="nl-priv"><div class="popt sp" data-priv="p"><div class="popt-icon">&#128274;</div><div class="popt-lbl">Private</div></div><div class="popt" data-priv="s"><div class="popt-icon">&#128101;</div><div class="popt-lbl">Shared</div></div><div class="popt" data-priv="pub"><div class="popt-icon">&#127757;</div><div class="popt-lbl">Public</div></div></div></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-newlist">Cancel</button><button class="btn btn-p" id="submit-newlist">Create List</button></div></div></div>
 
 <div class="moverlay" id="m-addplace"><div class="modal"><div class="mhandle"></div><div class="mhdr"><div><div class="mttl">Add a Place</div><div class="msub">Search Google Maps</div></div><button class="mclose" id="close-addplace">&#10005;</button></div><div class="mbody"><div class="fg" style="position:relative"><label class="flbl">Search Google Maps</label><div class="places-search-wrap"><span class="places-search-icon">&#128269;</span><input class="finput places-search-input" id="ap-search" placeholder="e.g. Eiffel Tower, Paris..." autocomplete="off"><button class="places-clear-btn" id="ap-clear" style="display:none">&#10005;</button></div><div class="places-dropdown" id="places-dropdown"></div></div><div class="place-preview" id="place-preview" style="display:none"><div class="place-preview-img" id="pp-img"><div class="place-preview-img-fallback">&#128205;</div></div><div class="place-preview-body"><div class="place-preview-name" id="pp-name"></div><div class="place-preview-addr" id="pp-addr"></div><div class="place-preview-meta"><span class="place-preview-type" id="pp-type"></span><span id="pp-rating"></span></div><a class="place-preview-gmaps" id="pp-gmaps" target="_blank" rel="noopener">&#128506; View on Google Maps</a></div></div><div id="ap-extra" style="display:none"><div class="fg"><label class="flbl">Category</label><select class="fsel" id="ap-cat"><option>Food and Drink</option><option>Culture and Sights</option><option>Nature and Parks</option><option>Shopping</option><option>Accommodation</option><option>Entertainment</option></select></div><div class="fg"><label class="flbl">Your Note</label><textarea class="ftarea" id="ap-note" placeholder="Tips, memories..."></textarea></div><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-bottom:4px"><input type="checkbox" id="ap-vis" style="accent-color:#4A7C59;width:15px;height:15px"> Mark as visited</label></div></div><div class="mfoot"><button class="btn btn-s" id="cancel-addplace">Cancel</button><button class="btn btn-p" id="submit-addplace" disabled style="opacity:.45">Add Place</button></div></div></div>
@@ -431,10 +461,17 @@ async function onSignedIn(user){
   var avatarUrl=currentProfile&&currentProfile.avatar_url;
   if(avatarUrl){av.innerHTML='<img src="'+avatarUrl+'" alt="">';}else{av.textContent=name[0].toUpperCase();}
   loadLists();
-  if(GOOGLE_MAPS_KEY&&GOOGLE_MAPS_KEY!=='YOUR_GOOGLE_MAPS_API_KEY'){
-    var s=document.createElement('script');
-    s.src='https://maps.googleapis.com/maps/api/js?key='+GOOGLE_MAPS_KEY+'&libraries=places&callback=initGooglePlaces';
-    s.async=true;s.defer=true;document.head.appendChild(s);
+  if(GOOGLE_MAPS_KEY && GOOGLE_MAPS_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY' && !window.googleMapsLoaded){
+    window.googleMapsLoaded = true;
+    var s = document.createElement('script');
+    s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_MAPS_KEY + '&libraries=places&callback=initGooglePlaces';
+    s.async = true;
+    s.defer = true;
+    s.onerror = function(){
+      console.error('Google Maps failed to load');
+      toast('Google Maps could not load. Check your internet connection.');
+    };
+    document.head.appendChild(s);
   }
 }
 
@@ -502,12 +539,17 @@ function makeSidebarItem(list){
   var isPrivate=list.privacy==='private';
   var isOwner=list.owner_id===currentUser.id;
   var isAdmin=currentProfile&&currentProfile.role==='admin';
+  var canEdit=isOwner||isAdmin;
   var canDelete=isOwner||isAdmin;
-  item.innerHTML='<div class="li-dot" style="background:'+(list.color||'#C4622D')+'"></div>'+
+  item.innerHTML=
+    '<div class="li-dot" style="background:'+(list.color||'#C4622D')+'"></div>'+
     '<span class="li-name">'+list.title+'</span>'+
     (isPrivate?'<span class="li-lock">&#128274;</span>':'<span class="li-count">0</span>')+
+    (canEdit?'<button class="li-edit" title="Edit">&#9998;</button>':'')+
     (canDelete?'<button class="li-del" title="Delete">&#10005;</button>':'');
   item.addEventListener('click',function(){selectList(list);});
+  var editBtn=item.querySelector('.li-edit');
+  if(editBtn)editBtn.addEventListener('click',function(e){e.stopPropagation();openEditList(list);});
   var delBtn=item.querySelector('.li-del');
   if(delBtn)delBtn.addEventListener('click',function(e){e.stopPropagation();askDeleteList(list);});
   return item;
@@ -661,6 +703,77 @@ async function addPlace(){
 }
 
 // DELETE
+var editingListId = null;
+var editingListPriv = 'p';
+
+function openEditList(list){
+  editingListId  = list.id;
+  editingListPriv = list.privacy === 'private' ? 'p' : list.privacy === 'shared' ? 's' : 'pub';
+  document.getElementById('el-name').value = list.title || '';
+  document.getElementById('el-desc').value = list.description || '';
+  // Set colour swatch
+  var swatches = document.querySelectorAll('#el-swatches .swatch');
+  swatches.forEach(function(s){
+    s.classList.remove('on');
+    if(s.style.background === list.color || s.style.backgroundColor === list.color) s.classList.add('on');
+  });
+  if(!document.querySelector('#el-swatches .swatch.on')) swatches[0].classList.add('on');
+  // Set privacy
+  var privOpts = document.querySelectorAll('#el-priv .popt');
+  privOpts.forEach(function(o){ o.className='popt'; });
+  var activePriv = document.querySelector('#el-priv .popt[data-priv="'+editingListPriv+'"]');
+  if(activePriv) activePriv.classList.add(editingListPriv==='p'?'sp':editingListPriv==='s'?'ss':'spub');
+  openM('editlist');
+}
+
+async function saveEditList(){
+  var name = document.getElementById('el-name').value.trim();
+  if(!name){ toast('Please enter a list name'); return; }
+  var swatchEl = document.querySelector('#el-swatches .swatch.on');
+  var color = swatchEl ? swatchEl.style.background : '#C4622D';
+  var privMap = {p:'private', s:'shared', pub:'public'};
+  var privacy = privMap[editingListPriv] || 'private';
+  var desc = document.getElementById('el-desc').value.trim();
+
+  var { error } = await sb.from('lists')
+    .update({ title: name, description: desc, color: color, privacy: privacy })
+    .eq('id', editingListId);
+
+  if(error){ toast('Error: ' + error.message); return; }
+
+  // Update sidebar item
+  var sideItem = document.querySelector('.li[data-id="'+editingListId+'"]');
+  if(sideItem){
+    var dot = sideItem.querySelector('.li-dot');
+    var nm  = sideItem.querySelector('.li-name');
+    if(dot) dot.style.background = color;
+    if(nm)  nm.textContent = name;
+  }
+
+  // Update topbar if this is the currently selected list
+  if(currentListId === editingListId){
+    document.getElementById('listtitle').textContent = name;
+    var b = document.getElementById('listbadge');
+    var bmap = {private:{t:'Private',c:'bp'},shared:{t:'Shared',c:'bs'},public:{t:'Public',c:'bpub'}};
+    var bm = bmap[privacy] || bmap['shared'];
+    b.textContent = bm.t; b.className = 'badge ' + bm.c;
+  }
+
+  // Update in currentLists
+  var idx = currentLists.findIndex(function(l){ return l.id === editingListId; });
+  if(idx > -1){
+    currentLists[idx].title = name;
+    currentLists[idx].color = color;
+    currentLists[idx].privacy = privacy;
+    currentLists[idx].description = desc;
+    // Rebuild sidebar to move to correct section if privacy changed
+    buildSidebar(currentLists);
+  }
+
+  closeM('editlist');
+  toast('List updated!');
+}
+
 function askDeleteList(list){
   var isOwner=list.owner_id===currentUser.id;
   var isAdmin=currentProfile&&currentProfile.role==='admin';
@@ -723,9 +836,88 @@ async function loadAdminData(){
 }
 
 // GOOGLE PLACES
-function initGooglePlaces(){autocompleteService=new google.maps.places.AutocompleteService();var dm=new google.maps.Map(document.createElement('div'));placesService=new google.maps.places.PlacesService(dm);}
-function onPlacesSearchInput(){var input=document.getElementById('ap-search');var val=input.value.trim();document.getElementById('ap-clear').style.display=val?'flex':'none';clearTimeout(searchTimer);if(!val){closePlacesDropdown();return;}showPlacesLoading();searchTimer=setTimeout(function(){searchPlaces(val);},350);}
-function searchPlaces(query){if(!autocompleteService){showNoResults('Search not available');return;}autocompleteService.getPlacePredictions({input:query,types:[]},function(predictions,status){if(status!==google.maps.places.PlacesServiceStatus.OK||!predictions){showNoResults('No results for "'+query+'"');return;}renderSuggestions(predictions);});}
+function initGooglePlaces(){
+  try {
+    // Wire up the search input to Google's built-in Autocomplete widget
+    // This is the most reliable approach - works with all API versions
+    var input = document.getElementById('ap-search');
+    if(!input){ console.warn('ap-search not found yet'); return; }
+
+    var autocomplete = new google.maps.places.Autocomplete(input, {
+      fields: ['name','formatted_address','geometry','photos',
+               'rating','user_ratings_total','types','url','place_id']
+    });
+
+    // When user selects a suggestion from dropdown
+    autocomplete.addListener('place_changed', function(){
+      var place = autocomplete.getPlace();
+      if(!place || !place.name){
+        showNoResults('Could not get place details. Try again.');
+        return;
+      }
+      selectedPlace = place;
+      showPlacePreview(place);
+    });
+
+    // Also keep autocompleteService for manual search fallback
+    autocompleteService = new google.maps.places.AutocompleteService();
+
+    // PlacesService for getting details
+    var mapDiv = document.createElement('div');
+    mapDiv.style.display = 'none';
+    document.body.appendChild(mapDiv);
+    var dummyMap = new google.maps.Map(mapDiv, { center:{lat:0,lng:0}, zoom:1 });
+    placesService = new google.maps.places.PlacesService(dummyMap);
+
+    // Store autocomplete instance
+    window._wanderAutocomplete = autocomplete;
+    console.log('Google Places ready - using Autocomplete widget');
+  } catch(e) {
+    console.error('Google Places init error:', e);
+  }
+}
+function onPlacesSearchInput(){
+  var input = document.getElementById('ap-search');
+  var val = input.value.trim();
+  document.getElementById('ap-clear').style.display = val ? 'flex' : 'none';
+
+  // If Google Autocomplete widget is active, it handles the dropdown natively
+  // We just need to handle the clear and loading states
+  if(window._wanderAutocomplete){
+    // Google's widget is handling autocomplete - just clear selectedPlace if input changes
+    if(!val){
+      closePlacesDropdown();
+      clearPlaceSearch();
+    }
+    return;
+  }
+
+  // Fallback: manual search if autocomplete widget not initialized
+  clearTimeout(searchTimer);
+  if(!val){ closePlacesDropdown(); return; }
+  showPlacesLoading();
+  searchTimer = setTimeout(function(){ searchPlaces(val); }, 350);
+}
+function searchPlaces(query){
+  if(!autocompleteService){
+    showNoResults('Google Maps not ready. Please check: 1) Maps JavaScript API is enabled in Google Cloud Console 2) Places API is enabled 3) API key has no domain restrictions blocking github.io');
+    return;
+  }
+  autocompleteService.getPlacePredictions(
+    {input: query, types: []},
+    function(predictions, status){
+      if(status === 'REQUEST_DENIED'){
+        showNoResults('API key error: Make sure Maps JavaScript API and Places API are enabled in Google Cloud Console');
+        return;
+      }
+      if(status !== google.maps.places.PlacesServiceStatus.OK || !predictions){
+        showNoResults('No results found for "' + query + '"');
+        return;
+      }
+      renderSuggestions(predictions);
+    }
+  );
+}
 var TYPE_EMOJI={restaurant:'&#127859;',food:'&#127859;',cafe:'&#9749;',bar:'&#127867;',museum:'&#127963;',park:'&#127807;',lodging:'&#127968;',shopping_mall:'&#128717;',default:'&#128205;'};
 function getTypeEmoji(types){if(!types)return TYPE_EMOJI['default'];for(var i=0;i<types.length;i++){if(TYPE_EMOJI[types[i]])return TYPE_EMOJI[types[i]];}return TYPE_EMOJI['default'];}
 function formatType(types){if(!types||!types.length)return'Place';var skip=['point_of_interest','establishment','political','locality','country'];for(var i=0;i<types.length;i++){if(skip.indexOf(types[i])===-1)return types[i].replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});}return'Place';}
@@ -738,7 +930,20 @@ function showPlacesLoading(){var dd=document.getElementById('places-dropdown');d
 function hidePlacesLoading(){var dd=document.getElementById('places-dropdown');dd.classList.remove('open');dd.innerHTML='';}
 function showNoResults(msg){var dd=document.getElementById('places-dropdown');dd.innerHTML='<div class="places-no-results">&#128269; '+msg+'</div>';dd.classList.add('open');}
 function closePlacesDropdown(){document.getElementById('places-dropdown').classList.remove('open');}
-function clearPlaceSearch(){document.getElementById('ap-search').value='';document.getElementById('ap-clear').style.display='none';document.getElementById('place-preview').style.display='none';document.getElementById('ap-extra').style.display='none';var btn=document.getElementById('submit-addplace');btn.disabled=true;btn.style.opacity='.45';closePlacesDropdown();selectedPlace=null;}
+function clearPlaceSearch(){
+  document.getElementById('ap-search').value = '';
+  document.getElementById('ap-clear').style.display = 'none';
+  document.getElementById('place-preview').style.display = 'none';
+  document.getElementById('ap-extra').style.display = 'none';
+  var btn = document.getElementById('submit-addplace');
+  btn.disabled = true; btn.style.opacity = '.45';
+  closePlacesDropdown();
+  selectedPlace = null;
+  // Reset Google Autocomplete input
+  if(window._wanderAutocomplete){
+    // Autocomplete clears itself when input is cleared
+  }
+}
 
 // NAV
 function isMob(){return window.innerWidth<=680;}
@@ -752,6 +957,17 @@ function openM(id){
   var el=document.getElementById('m-'+id);
   if(!el)return;
   el.classList.add('on');
+  // When addplace modal opens, reinitialize autocomplete on the input
+  if(id==='addplace'){
+    // Small delay to ensure modal is visible before Google wires up
+    setTimeout(function(){
+      if(typeof google !== 'undefined' && google.maps && google.maps.places){
+        if(!window._wanderAutocomplete){
+          initGooglePlaces();
+        }
+      }
+    }, 200);
+  }
   // When share modal opens, generate the share link
   if(id==='share'&&currentListId){
     var shareInput=document.getElementById('sharelink');
@@ -840,9 +1056,14 @@ on('bnav-lists','click',function(){toggleSB();setNav(get('bnav-lists'));});
 on('bnav-map','click',function(){openMapView();setNav(get('bnav-map'));});
 on('bnav-add','click',function(){openM('addplace');setNav(get('bnav-add'));});
 on('bnav-share','click',function(){openM('share');setNav(get('bnav-share'));});
-on('close-newlist','click',function(){closeM('newlist');});
-on('cancel-newlist','click',function(){closeM('newlist');});
-on('submit-newlist','click',createList);
+on('close-newlist',   'click', function(){ closeM('newlist'); });
+on('cancel-newlist',  'click', function(){ closeM('newlist'); });
+on('submit-newlist',  'click', createList);
+on('close-editlist',  'click', function(){ closeM('editlist'); });
+on('cancel-editlist', 'click', function(){ closeM('editlist'); });
+on('submit-editlist', 'click', saveEditList);
+document.querySelectorAll('#el-swatches .swatch').forEach(function(el){ el.addEventListener('click', function(){ pickSwatch(this); }); });
+document.querySelectorAll('#el-priv .popt').forEach(function(el){ el.addEventListener('click', function(){ editingListPriv = this.getAttribute('data-priv'); pickPriv(this, editingListPriv); }); });
 on('close-addplace','click',function(){closeM('addplace');clearPlaceSearch();});
 on('cancel-addplace','click',function(){closeM('addplace');clearPlaceSearch();});
 on('submit-addplace','click',addPlace);
